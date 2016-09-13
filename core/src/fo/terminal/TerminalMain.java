@@ -51,6 +51,7 @@ public class TerminalMain extends ApplicationAdapter {
         //Begin rendering
         Gui.begin(Gui.batch);
 
+        //TODO: STANDARD RENDERING OF ALL OTHER ACTORS
 
         //Render scrolling light thing
         drawScrollingLightThing();
@@ -75,7 +76,7 @@ public class TerminalMain extends ApplicationAdapter {
 
     private void drawScrollingLightThing() {
         Gui.end(Gui.batch);
-        Gdx.gl.glEnable(Gdx.gl.GL_BLEND);
+        Gdx.gl.glEnable(GL20.GL_BLEND);
         Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
         Gui.begin(Gui.sr, ShapeRenderer.ShapeType.Line, scrollingThingColor);
         for (int i = 127; i < 255; i++) {
@@ -89,6 +90,6 @@ public class TerminalMain extends ApplicationAdapter {
             scrollingThingPos = Gdx.graphics.getHeight();
         }
         Gui.end(Gui.sr);
-        Gdx.gl.glDisable(Gdx.gl.GL_BLEND);
+        Gdx.gl.glDisable(GL20.GL_BLEND);
     }
 }
