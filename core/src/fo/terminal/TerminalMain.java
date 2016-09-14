@@ -2,6 +2,7 @@ package fo.terminal;
 
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
@@ -12,7 +13,7 @@ import gui.Gui;
 
 public class TerminalMain extends ApplicationAdapter {
 
-    public static final int TITLE_DISTANCE_FROM_TOP = 100;
+    private static final int TITLE_DISTANCE_FROM_TOP = 100;
 
     private int scrollingThingPos = 0;
     private Color scrollingThingColor;
@@ -21,6 +22,8 @@ public class TerminalMain extends ApplicationAdapter {
     private boolean glowIncrease = true;
     private static final int MAX_GLOW = 30;
     private Color glowColor;
+
+    private int oldWidth, oldHeight;
 
     private BitmapFont smallFont;
     private BitmapFont mediumFont;
@@ -77,7 +80,17 @@ public class TerminalMain extends ApplicationAdapter {
     }
 
     private void act(float deltaTime) {
-
+        if (Gdx.input.isKeyPressed(Input.Keys.ALT_LEFT) || Gdx.input.isKeyPressed(Input.Keys.ALT_RIGHT)) {
+            if (Gdx.input.isKeyJustPressed(Input.Keys.ENTER)) {
+                if (!Gdx.graphics.isFullscreen()) {
+                    oldWidth = Gdx.graphics.getWidth();
+                    oldHeight = Gdx.graphics.getHeight();
+                    Gdx.graphics.setFullscreenMode(Gdx.graphics.getDisplayMode());
+                } else {
+                    Gdx.graphics.setWindowedMode(oldWidth, oldHeight);
+                }
+            }
+        }
     }
 
     @Override
