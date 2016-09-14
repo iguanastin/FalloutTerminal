@@ -5,6 +5,8 @@ import com.badlogic.gdx.graphics.g2d.Batch;
 
 /**
  * @author austinbt
+ *
+ * //TODO: Implement screens into TerminalMain
  */
 public abstract class TerminalScreen implements InputProcessor {
     protected boolean drawTitle = false;

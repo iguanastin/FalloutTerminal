@@ -8,7 +8,7 @@ import com.badlogic.gdx.scenes.scene2d.Actor;
 public class Button extends Actor {
 
     private boolean mouseDown = false;
-    private String text;
+    protected String text;
     
     private ButtonAcceptListener listener;
 

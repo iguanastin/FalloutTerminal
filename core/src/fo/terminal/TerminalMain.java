@@ -29,9 +29,11 @@ public class TerminalMain extends ApplicationAdapter {
     private static final int MAX_GLOW = 30;
     private Color glowColor;
 
-    private BitmapFont smallFont;
-    private BitmapFont mediumFont;
-    private BitmapFont largeFont;
+    private TerminalButton button;
+
+    public static BitmapFont smallFont;
+    public static BitmapFont mediumFont;
+    public static BitmapFont largeFont;
 
     private Texture vignette;
     private Texture noise;
@@ -44,6 +46,7 @@ public class TerminalMain extends ApplicationAdapter {
     private LwjglFrame parentFrame;
 
     private Music backgroundAudioA, backgroundAudioB, backgroundAudioC;
+    private float backgroundAudioVolume = 0.8f;
 
     public void setParentFrame(LwjglFrame parentFrame) {
         this.parentFrame = parentFrame;
@@ -70,7 +73,16 @@ public class TerminalMain extends ApplicationAdapter {
         loadOverlayTextures();
         //Load audio files
         loadAudio();
+        //Start background audio
+        startBackgroundAudio();
 
+        //TODO: REMOVE
+        button = new TerminalButton("Test button", 100, Gdx.graphics.getHeight() - getHeightOfTitle(), Gdx.graphics.getWidth() - 200, 40);
+        button.setSelected(true);
+        //------------
+    }
+
+    private void startBackgroundAudio() {
         //Play background music
         if (playAudio) {
             switch (new Random().nextInt(3)) {
@@ -89,8 +101,16 @@ public class TerminalMain extends ApplicationAdapter {
 
     private void loadAudio() {
         backgroundAudioA = Gdx.audio.newMusic(Gdx.files.internal("audio/obj_console_03_a_lp.wav"));
+        backgroundAudioA.setLooping(true);
+        backgroundAudioA.setVolume(backgroundAudioVolume);
+
         backgroundAudioB = Gdx.audio.newMusic(Gdx.files.internal("audio/obj_console_03_b_lp.wav"));
+        backgroundAudioB.setLooping(true);
+        backgroundAudioB.setVolume(backgroundAudioVolume);
+
         backgroundAudioC = Gdx.audio.newMusic(Gdx.files.internal("audio/obj_console_03_c_lp.wav"));
+        backgroundAudioC.setLooping(true);
+        backgroundAudioC.setVolume(backgroundAudioVolume);
     }
 
     private void loadOverlayTextures() {
@@ -131,6 +151,9 @@ public class TerminalMain extends ApplicationAdapter {
         matrix.setToOrtho2D(0, 0, width, height);
         Gui.batch.setProjectionMatrix(matrix);
         Gui.sr.setProjectionMatrix(matrix);
+
+        //TODO: REMOVE
+        button.setPosition(100, Gdx.graphics.getHeight() - getHeightOfTitle() - 100);
     }
 
     private void act(float deltaTime) {
@@ -142,7 +165,6 @@ public class TerminalMain extends ApplicationAdapter {
     }
 
     /**
-     *
      * @return The distance from the top of the canvas to approximately one line-height below the title
      */
     public int getHeightOfTitle() {
@@ -217,6 +239,9 @@ public class TerminalMain extends ApplicationAdapter {
         Gui.begin(Gui.batch);
 
         //TODO: STANDARD RENDERING OF ALL OTHER ACTORS
+        //TODO: REMOVE
+        button.act(Gdx.graphics.getDeltaTime());
+        button.draw(Gui.batch, 1f);
 
         //Render title
         if (drawTitle) {
@@ -292,6 +317,8 @@ public class TerminalMain extends ApplicationAdapter {
         String topLine = "ROBCO INDUSTRIES UNIFIED OPERATING SYSTEM";
         String middleLine = "COPYRIGHT 2075-2077 ROBCO INDUSTRIES";
         String bottomLine = "-SERVER 1-";
+
+        largeFont.setColor(Gui.text_color);
 
         Gui.GLYPHS.setText(largeFont, topLine);
         largeFont.draw(Gui.batch, topLine, Gdx.graphics.getWidth() / 2 - Gui.GLYPHS.width / 2, Gdx.graphics.getHeight() - TITLE_DISTANCE_FROM_TOP);
