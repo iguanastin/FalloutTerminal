@@ -3,17 +3,20 @@ package fo.terminal;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
+import com.badlogic.gdx.backends.lwjgl.LwjglFrame;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.math.Matrix4;
 import gui.Gui;
 
 public class TerminalMain extends ApplicationAdapter {
 
-    private static final int TITLE_DISTANCE_FROM_TOP = 100;
+    private static final int TITLE_DISTANCE_FROM_TOP = 75;
 
     private int scrollingThingPos = 0;
     private Color scrollingThingColor;
@@ -23,15 +26,21 @@ public class TerminalMain extends ApplicationAdapter {
     private static final int MAX_GLOW = 30;
     private Color glowColor;
 
-    private int oldWidth, oldHeight;
-
     private BitmapFont smallFont;
     private BitmapFont mediumFont;
     private BitmapFont largeFont;
 
     private Texture vignette;
+    private Texture noise;
 
     private boolean drawTitle = true;
+    private boolean drawFps = false;
+
+    private LwjglFrame frame;
+
+    public void setFrame(LwjglFrame frame) {
+        this.frame = frame;
+    }
 
     @Override
     public void create() {
@@ -47,6 +56,7 @@ public class TerminalMain extends ApplicationAdapter {
         generateFonts();
 
         vignette = new Texture(Gdx.files.internal("vignette.png"));
+        noise = new Texture(Gdx.files.internal("noise.png"));
     }
 
     private void setGuiVariables() {
@@ -76,20 +86,40 @@ public class TerminalMain extends ApplicationAdapter {
 
     @Override
     public void resize(int width, int height) {
-        Gui.resetRenderers();
+//        Gui.resetRenderers();
+
+        Matrix4 matrix = new Matrix4();
+        matrix.setToOrtho2D(0, 0, width, height);
+        Gui.batch.setProjectionMatrix(matrix);
+        Gui.sr.setProjectionMatrix(matrix);
     }
 
     private void act(float deltaTime) {
+        updateGlow();
+
+        if (Gdx.input.isKeyJustPressed(Input.Keys.F3)) {
+            drawFps = !drawFps;
+        }
+    }
+
+    private void updateGlow() {
+        //Is ALT currently down
         if (Gdx.input.isKeyPressed(Input.Keys.ALT_LEFT) || Gdx.input.isKeyPressed(Input.Keys.ALT_RIGHT)) {
+            //Is enter just pressed
             if (Gdx.input.isKeyJustPressed(Input.Keys.ENTER)) {
-                if (!Gdx.graphics.isFullscreen()) {
-                    oldWidth = Gdx.graphics.getWidth();
-                    oldHeight = Gdx.graphics.getHeight();
-                    Gdx.graphics.setFullscreenMode(Gdx.graphics.getDisplayMode());
-                } else {
-                    Gdx.graphics.setWindowedMode(oldWidth, oldHeight);
-                }
+                toggleFullscreen();
             }
+        } else if(Gdx.input.isKeyJustPressed(Input.Keys.F11)) {
+            toggleFullscreen();
+        }
+    }
+
+    private void toggleFullscreen() {
+        if (!Gdx.graphics.isFullscreen()) {
+            Gdx.graphics.setFullscreenMode(Gdx.graphics.getDisplayMode());
+        } else {
+            Gdx.graphics.setWindowedMode(LwjglApplicationConfiguration.getDesktopDisplayMode().width, LwjglApplicationConfiguration.getDesktopDisplayMode().height);
+            frame.setExtendedState(LwjglFrame.MAXIMIZED_BOTH);
         }
     }
 
@@ -100,6 +130,7 @@ public class TerminalMain extends ApplicationAdapter {
         mediumFont.dispose();
         largeFont.dispose();
         vignette.dispose();
+        noise.dispose();
     }
 
     @Override
@@ -132,6 +163,17 @@ public class TerminalMain extends ApplicationAdapter {
 
         //Draw glow
         drawGlow();
+
+        //Render noise
+        Gui.begin(Gui.batch);
+        Gui.batch.draw(noise, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+
+        //Draw fps
+        if (drawFps) {
+            Gui.begin(Gui.batch);
+            String str = Gdx.graphics.getFramesPerSecond()+"";
+            Gui.font.draw(Gui.batch, str, 5, Gdx.graphics.getHeight() - 5);
+        }
 
         //End rendering
         Gui.end(Gui.batch);
