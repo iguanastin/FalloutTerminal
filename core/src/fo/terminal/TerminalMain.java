@@ -3,6 +3,7 @@ package fo.terminal;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
 import com.badlogic.gdx.backends.lwjgl.LwjglFrame;
 import com.badlogic.gdx.graphics.Color;
@@ -34,27 +35,47 @@ public class TerminalMain extends ApplicationAdapter {
     private Texture noise;
 
     private boolean drawTitle = true;
+    private boolean drawSplitter = true;
     private boolean drawFps = false;
 
-    private LwjglFrame frame;
+    private LwjglFrame parentFrame;
 
-    public void setFrame(LwjglFrame frame) {
-        this.frame = frame;
+    private Music backgroundAudioA, backgroundAudioB, backgroundAudioC;
+
+    public void setParentFrame(LwjglFrame parentFrame) {
+        this.parentFrame = parentFrame;
     }
 
     @Override
     public void create() {
+        //Set renderer and gui variables
         setGuiVariables();
 
+        //Initialize renderers
         Gui.resetRenderers();
 
+        //Initialize scrolling thing
         scrollingThingPos = Gdx.graphics.getHeight();
         scrollingThingColor = Gui.trim_color.cpy();
 
+        //Create glow color object
         glowColor = Gui.trim_color.cpy();
 
+        //Generate small, medium, and large fonts
         generateFonts();
+        //Load overlay textures
+        loadOverlayTextures();
+        //Load audio files
+        loadAudio();
+    }
 
+    private void loadAudio() {
+        backgroundAudioA = Gdx.audio.newMusic(Gdx.files.internal("audio/obj_console_03_a_lp.wav"));
+        backgroundAudioB = Gdx.audio.newMusic(Gdx.files.internal("audio/obj_console_03_b_lp.wav"));
+        backgroundAudioC = Gdx.audio.newMusic(Gdx.files.internal("audio/obj_console_03_c_lp.wav"));
+    }
+
+    private void loadOverlayTextures() {
         vignette = new Texture(Gdx.files.internal("vignette.png"));
         noise = new Texture(Gdx.files.internal("noise.png"));
     }
@@ -102,6 +123,14 @@ public class TerminalMain extends ApplicationAdapter {
         }
     }
 
+    /**
+     *
+     * @return The distance from the top of the canvas to approximately one line-height below the title
+     */
+    public int getHeightOfTitle() {
+        return TITLE_DISTANCE_FROM_TOP + (int) (largeFont.getLineHeight() * 3);
+    }
+
     private void updateGlow() {
         //Is ALT currently down
         if (Gdx.input.isKeyPressed(Input.Keys.ALT_LEFT) || Gdx.input.isKeyPressed(Input.Keys.ALT_RIGHT)) {
@@ -109,7 +138,7 @@ public class TerminalMain extends ApplicationAdapter {
             if (Gdx.input.isKeyJustPressed(Input.Keys.ENTER)) {
                 toggleFullscreen();
             }
-        } else if(Gdx.input.isKeyJustPressed(Input.Keys.F11)) {
+        } else if (Gdx.input.isKeyJustPressed(Input.Keys.F11)) {
             toggleFullscreen();
         }
     }
@@ -119,18 +148,40 @@ public class TerminalMain extends ApplicationAdapter {
             Gdx.graphics.setFullscreenMode(Gdx.graphics.getDisplayMode());
         } else {
             Gdx.graphics.setWindowedMode(LwjglApplicationConfiguration.getDesktopDisplayMode().width, LwjglApplicationConfiguration.getDesktopDisplayMode().height);
-            frame.setExtendedState(LwjglFrame.MAXIMIZED_BOTH);
+            parentFrame.setExtendedState(LwjglFrame.MAXIMIZED_BOTH);
         }
     }
 
     @Override
     public void dispose() {
+        //Dispose renderers
         Gui.dispose();
+
+        //Dispose of fonts
+        disposeFonts();
+
+        //Dispose of overlay textures
+        disposeOverlayTextures();
+
+        //Dispose of audio
+        disposeAudio();
+    }
+
+    private void disposeFonts() {
         smallFont.dispose();
         mediumFont.dispose();
         largeFont.dispose();
+    }
+
+    private void disposeOverlayTextures() {
         vignette.dispose();
         noise.dispose();
+    }
+
+    private void disposeAudio() {
+        backgroundAudioA.dispose();
+        backgroundAudioB.dispose();
+        backgroundAudioC.dispose();
     }
 
     @Override
@@ -154,6 +205,9 @@ public class TerminalMain extends ApplicationAdapter {
             drawTitleText();
         }
 
+        //Render splitter
+        drawSplitter();
+
         //Render scrolling light thing
         drawScrollingLightThing();
 
@@ -171,7 +225,7 @@ public class TerminalMain extends ApplicationAdapter {
         //Draw fps
         if (drawFps) {
             Gui.begin(Gui.batch);
-            String str = Gdx.graphics.getFramesPerSecond()+"";
+            String str = Gdx.graphics.getFramesPerSecond() + "";
             Gui.font.draw(Gui.batch, str, 5, Gdx.graphics.getHeight() - 5);
         }
 
@@ -180,18 +234,30 @@ public class TerminalMain extends ApplicationAdapter {
         Gui.end(Gui.sr);
     }
 
+    private void drawSplitter() {
+        if (drawSplitter) {
+            Gui.end(Gui.batch);
+            Gui.begin(Gui.sr, ShapeRenderer.ShapeType.Filled, Gui.trim_color);
+
+            int splitterY = Gdx.graphics.getHeight() - getHeightOfTitle();
+            Gui.sr.rect(TITLE_DISTANCE_FROM_TOP, splitterY, Gdx.graphics.getWidth() - TITLE_DISTANCE_FROM_TOP * 2, 5);
+
+            Gui.end(Gui.sr);
+        }
+    }
+
     private void drawGlow() {
         if (glowIncrease) {
             glow++;
         } else {
             glow--;
         }
-        if (glow >= MAX_GLOW*10) {
+        if (glow >= MAX_GLOW * 10) {
             glowIncrease = false;
         } else if (glow <= 0) {
             glowIncrease = true;
         }
-        glowColor.a = glow / (255f*10f);
+        glowColor.a = glow / (255f * 10f);
         Gui.end(Gui.batch);
         Gui.end(Gui.sr);
         Gdx.gl.glEnable(GL20.GL_BLEND);
@@ -236,7 +302,7 @@ public class TerminalMain extends ApplicationAdapter {
         Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
         Gui.begin(Gui.sr, ShapeRenderer.ShapeType.Line, scrollingThingColor);
         for (int i = 0; i < 127; i++) {
-            scrollingThingColor.a = (128-i)/255f;
+            scrollingThingColor.a = (128 - i) / 255f;
             Gui.sr.setColor(scrollingThingColor);
 
             Gui.sr.line(0, scrollingThingPos + i, Gdx.graphics.getWidth(), scrollingThingPos + i);

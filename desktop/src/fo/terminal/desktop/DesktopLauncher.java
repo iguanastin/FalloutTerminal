@@ -5,8 +5,6 @@ import com.badlogic.gdx.backends.lwjgl.LwjglFrame;
 import com.badlogic.gdx.graphics.Color;
 import fo.terminal.TerminalMain;
 
-import java.awt.*;
-
 public class DesktopLauncher {
     public static void main(String[] arg) {
 //        System.setProperty("org.lwjgl.opengl.Window.undecorated", "true");
@@ -27,7 +25,7 @@ public class DesktopLauncher {
         TerminalMain terminalMain = new TerminalMain();
         LwjglFrame frame = new LwjglFrame(terminalMain, config);
         frame.setExtendedState(LwjglFrame.MAXIMIZED_BOTH);
-        terminalMain.setFrame(frame);
+        terminalMain.setParentFrame(frame);
 
     }
 }
