@@ -180,13 +180,13 @@ public class TerminalMain extends ApplicationAdapter {
         Gdx.gl.glEnable(GL20.GL_BLEND);
         Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
         Gui.begin(Gui.sr, ShapeRenderer.ShapeType.Line, scrollingThingColor);
-        for (int i = 127; i < 255; i++) {
-            scrollingThingColor.a = i;
+        for (int i = 0; i < 127; i++) {
+            scrollingThingColor.a = (128-i)/255f;
             Gui.sr.setColor(scrollingThingColor);
 
             Gui.sr.line(0, scrollingThingPos + i, Gdx.graphics.getWidth(), scrollingThingPos + i);
         }
-        scrollingThingPos -= 4;
+        scrollingThingPos -= 3;
         if (scrollingThingPos < -Gdx.graphics.getHeight()) {
             scrollingThingPos = Gdx.graphics.getHeight();
         }
