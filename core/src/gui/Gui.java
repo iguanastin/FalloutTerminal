@@ -58,7 +58,7 @@ public abstract class Gui {
      */
     public static BitmapFont font;
     
-    private static final GlyphLayout GLYPHS = new GlyphLayout();
+    public static final GlyphLayout GLYPHS = new GlyphLayout();
     
     /**
      * Disposes and recreates renderers. Should be called when window is resized to apply effects of viewport changes to rendering.
