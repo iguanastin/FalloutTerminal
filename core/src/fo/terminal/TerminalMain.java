@@ -4,6 +4,7 @@ import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
@@ -12,11 +13,13 @@ import gui.Gui;
 public class TerminalMain extends ApplicationAdapter {
 
     private int scrollingThingPos = 0;
-    private Color scrollingThingColor = Color.GREEN;
+    private Color scrollingThingColor;
 
     private BitmapFont smallFont;
     private BitmapFont mediumFont;
     private BitmapFont largeFont;
+
+    private Texture vignette;
 
     private boolean drawTitle = true;
 
@@ -30,6 +33,8 @@ public class TerminalMain extends ApplicationAdapter {
         scrollingThingColor = Gui.trim_color.cpy();
 
         generateFonts();
+
+        vignette = new Texture(Gdx.files.internal("vignette.png"));
     }
 
     private void setGuiVariables() {
@@ -46,10 +51,11 @@ public class TerminalMain extends ApplicationAdapter {
         FreeTypeFontGenerator gen = new FreeTypeFontGenerator(Gdx.files.internal("monofont.ttf"));
         FreeTypeFontGenerator.FreeTypeFontParameter param = new FreeTypeFontGenerator.FreeTypeFontParameter();
         param.size = 12;
+        param.kerning = false;
         smallFont = gen.generateFont(param);
         param.size = 24;
         mediumFont = gen.generateFont(param);
-        param.size = 36;
+        param.size = 48;
         largeFont = gen.generateFont(param);
         smallFont.setColor(Gui.text_color);
         mediumFont.setColor(Gui.text_color);
@@ -63,6 +69,15 @@ public class TerminalMain extends ApplicationAdapter {
 
     private void act(float deltaTime) {
 
+    }
+
+    @Override
+    public void dispose() {
+        Gui.dispose();
+        smallFont.dispose();
+        mediumFont.dispose();
+        largeFont.dispose();
+        vignette.dispose();
     }
 
     @Override
@@ -81,13 +96,17 @@ public class TerminalMain extends ApplicationAdapter {
 
         //TODO: STANDARD RENDERING OF ALL OTHER ACTORS
 
-        //Render scrolling light thing
-        drawScrollingLightThing();
-
         //Render title
         if (drawTitle) {
             drawTitleText();
         }
+
+        //Render scrolling light thing
+        drawScrollingLightThing();
+
+        //Render vignette
+        Gui.begin(Gui.batch);
+        Gui.batch.draw(vignette, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 
         //End rendering
         Gui.end(Gui.batch);
