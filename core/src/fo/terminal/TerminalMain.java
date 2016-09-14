@@ -15,6 +15,8 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Matrix4;
 import gui.Gui;
 
+import java.util.Random;
+
 public class TerminalMain extends ApplicationAdapter {
 
     private static final int TITLE_DISTANCE_FROM_TOP = 75;
@@ -37,6 +39,7 @@ public class TerminalMain extends ApplicationAdapter {
     private boolean drawTitle = true;
     private boolean drawSplitter = true;
     private boolean drawFps = false;
+    private boolean playAudio = false;
 
     private LwjglFrame parentFrame;
 
@@ -67,6 +70,21 @@ public class TerminalMain extends ApplicationAdapter {
         loadOverlayTextures();
         //Load audio files
         loadAudio();
+
+        //Play background music
+        if (playAudio) {
+            switch (new Random().nextInt(3)) {
+                case 0:
+                    backgroundAudioA.play();
+                    break;
+                case 1:
+                    backgroundAudioB.play();
+                    break;
+                case 2:
+                    backgroundAudioC.play();
+                    break;
+            }
+        }
     }
 
     private void loadAudio() {
