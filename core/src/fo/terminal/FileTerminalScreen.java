@@ -3,7 +3,6 @@ package fo.terminal;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.g2d.Batch;
-import gui.Button;
 
 import java.util.ArrayList;
 
@@ -12,12 +11,13 @@ import java.util.ArrayList;
  */
 public class FileTerminalScreen extends TerminalScreen {
 
-    private static final int BUTTON_HEIGHT = 30;
-    private static final int BUTTON_GAP = 10;
+    private static final int BUTTON_HEIGHT = 40;
+    private static final int BUTTON_GAP = 15;
+    public static final int SIDE_BORDER = 100;
 
     private TerminalMain terminal;
 
-    private TerminalFile file;
+    private TerminalFile folder;
 
     private ArrayList<TerminalButton> buttons;
     private int page = 0, index = 0;
@@ -26,6 +26,8 @@ public class FileTerminalScreen extends TerminalScreen {
     public FileTerminalScreen() {
         drawTitle = true;
         drawTitleSplitter = true;
+
+        buttons = new ArrayList<TerminalButton>();
     }
 
     public FileTerminalScreen setDirectory(TerminalFile file) {
@@ -33,7 +35,7 @@ public class FileTerminalScreen extends TerminalScreen {
             throw new TerminalFileException("Cannot open non-directory");
         }
 
-        this.file = file;
+        this.folder = file;
 
         index = 0;
         page = 0;
@@ -50,16 +52,45 @@ public class FileTerminalScreen extends TerminalScreen {
         int totalButtons = availableSpace/(BUTTON_HEIGHT + BUTTON_GAP);
         int availableButtons = totalButtons;
 
-        if (file.getChildren().size() > totalButtons) {
+        if (folder.getChildren().size() > totalButtons) {
             availableButtons -= 2;
         }
 
-        //TODO: Generate buttons to be rendered in the current page
+        maxIndex = availableButtons;
+        maxPage = (folder.getChildren().size()+1)/maxIndex;
+        index = 0;
+        page = 0;
+
+        for (TerminalFile file : folder.getChildren()) {
+            buttons.add(new TerminalButton(this, file.getName(), -1000, -1000, 10, 10));
+        }
+
+        select(buttons.get(0));
+    }
+
+    public void select(TerminalButton button) {
+        if (buttons.contains(button)) {
+            for (TerminalButton unselectButton : buttons) {
+                unselectButton.setSelected(false);
+            }
+
+            index = buttons.indexOf(button);
+            page = 0;
+
+            while (index > maxIndex) {
+                page++;
+                index -= maxIndex;
+            }
+
+            buttons.get(index).setSelected(true);
+        }
     }
 
     @Override
     public void act() {
-
+        for (TerminalButton button : buttons) {
+            button.act(Gdx.graphics.getDeltaTime());
+        }
     }
 
     @Override
@@ -69,7 +100,18 @@ public class FileTerminalScreen extends TerminalScreen {
 
     @Override
     public void draw(Batch batch) {
+        int i = 0;
+        for (TerminalButton button : buttons) {
+            if (i > maxIndex) {
+                break;
+            }
 
+            button.setPosition(100, Gdx.graphics.getHeight() - terminal.getHeightOfTitle() - SIDE_BORDER - i*(BUTTON_HEIGHT+BUTTON_GAP));
+            button.setSize(Gdx.graphics.getWidth() - SIDE_BORDER *2, BUTTON_HEIGHT);
+            button.draw(batch, 1f);
+
+            i++;
+        }
     }
 
     @Override
@@ -77,18 +119,20 @@ public class FileTerminalScreen extends TerminalScreen {
         if (keycode == Input.Keys.DOWN || keycode == Input.Keys.S) {
             //Move down
             if (index < maxIndex) {
-                buttons.get(index+maxIndex*page).setSelected(false);
+                select(buttons.get(index+maxIndex*page));
                 index++;
-                buttons.get(index+maxIndex*page).setSelected(true);
+                select(buttons.get(index+maxIndex*page));
             }
+
+            //TODO: Fix bug out of bounds error when there are less than maxIndex buttons on the page
 
             return true;
         } else if (keycode == Input.Keys.UP || keycode == Input.Keys.W) {
             //Move up
             if (index > 0) {
-                buttons.get(index+maxIndex*page).setSelected(false);
+                select(buttons.get(index+maxIndex*page));
                 index--;
-                buttons.get(index+maxIndex*page).setSelected(true);
+                select(buttons.get(index+maxIndex*page));
             }
 
             return true;
@@ -100,21 +144,25 @@ public class FileTerminalScreen extends TerminalScreen {
         } else if (keycode == Input.Keys.LEFT || keycode == Input.Keys.A) {
             //Left
             if (page > 0) {
-                buttons.get(index+maxIndex*page).setSelected(false);
+                select(buttons.get(index+maxIndex*page));
                 page--;
                 index = 0;
-                buttons.get(index+maxIndex*page).setSelected(true);
+                select(buttons.get(index+maxIndex*page));
             }
+
+            //TODO: Implement page changing
 
             return true;
         } else if (keycode == Input.Keys.RIGHT || keycode == Input.Keys.D) {
             //Right
             if (page < maxPage) {
-                buttons.get(index+maxIndex*page).setSelected(false);
+                select(buttons.get(index+maxIndex*page));
                 page++;
                 index = 0;
-                buttons.get(index+maxIndex*page).setSelected(true);
+                select(buttons.get(index+maxIndex*page));
             }
+
+            //TODO: Implement page changing
 
             return true;
         }
