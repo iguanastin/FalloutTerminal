@@ -25,7 +25,7 @@ public class DesktopLauncher {
         TerminalMain terminalMain = new TerminalMain();
         LwjglFrame frame = new LwjglFrame(terminalMain, config);
         frame.setExtendedState(LwjglFrame.MAXIMIZED_BOTH);
-        terminalMain.setParentFrame(frame);
+        terminalMain.setLwjglFrame(frame);
 
     }
 }

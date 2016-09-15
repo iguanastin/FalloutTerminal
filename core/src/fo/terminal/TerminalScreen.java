@@ -11,6 +11,7 @@ import com.badlogic.gdx.graphics.g2d.Batch;
 abstract class TerminalScreen implements InputProcessor {
     boolean drawTitle = false;
     boolean drawTitleSplitter = false;
+    private TerminalMain terminal;
 
     public abstract void draw(Batch batch);
 
@@ -19,10 +20,14 @@ abstract class TerminalScreen implements InputProcessor {
     }
 
     public void opened(TerminalMain terminal) {
-
+        this.terminal = terminal;
     }
 
     public void closed(TerminalMain terminal) {
+        this.terminal = terminal;
+    }
+
+    public void resized(int width, int height) {
 
     }
 

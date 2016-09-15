@@ -41,18 +41,18 @@ public class TerminalMain extends ApplicationAdapter {
 
     private boolean drawTitle = true;
     private boolean drawSplitter = true;
-    private boolean drawFps = false;
+    private boolean drawDebug = false;
+
+    private LwjglFrame lwjglFrame;
+
     private boolean playAudio = true;
-
-    private LwjglFrame parentFrame;
-
     private Music backgroundAudioA, backgroundAudioB, backgroundAudioC;
     private Sound buttonClickSound1, buttonClickSound2, buttonClickSound3;
     private float backgroundAudioVolume = 0.8f;
     private float soundFXVolume = 0.8f;
 
-    public void setParentFrame(LwjglFrame parentFrame) {
-        this.parentFrame = parentFrame;
+    public void setLwjglFrame(LwjglFrame lwjglFrame) {
+        this.lwjglFrame = lwjglFrame;
     }
 
     @Override
@@ -93,23 +93,29 @@ public class TerminalMain extends ApplicationAdapter {
     }
 
     private void startBackgroundAudio() {
+        if (!playAudio) {
+            return;
+        }
+
         //Play background music
-        if (playAudio) {
-            switch (new Random().nextInt(3)) {
-                case 0:
-                    backgroundAudioA.play();
-                    break;
-                case 1:
-                    backgroundAudioB.play();
-                    break;
-                case 2:
-                    backgroundAudioC.play();
-                    break;
-            }
+        switch (new Random().nextInt(3)) {
+            case 0:
+                backgroundAudioA.play();
+                break;
+            case 1:
+                backgroundAudioB.play();
+                break;
+            case 2:
+                backgroundAudioC.play();
+                break;
         }
     }
 
     public void playButtonClick() {
+        if (!playAudio) {
+            return;
+        }
+
         switch (new Random().nextInt(3)) {
             case 0:
                 buttonClickSound1.play(soundFXVolume);
@@ -189,7 +195,7 @@ public class TerminalMain extends ApplicationAdapter {
         screen.act();
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.F3)) {
-            drawFps = !drawFps;
+            drawDebug = !drawDebug;
         }
     }
 
@@ -217,7 +223,7 @@ public class TerminalMain extends ApplicationAdapter {
             Gdx.graphics.setFullscreenMode(Gdx.graphics.getDisplayMode());
         } else {
             Gdx.graphics.setWindowedMode(LwjglApplicationConfiguration.getDesktopDisplayMode().width, LwjglApplicationConfiguration.getDesktopDisplayMode().height);
-            parentFrame.setExtendedState(LwjglFrame.MAXIMIZED_BOTH);
+            lwjglFrame.setExtendedState(LwjglFrame.MAXIMIZED_BOTH);
         }
     }
 
@@ -297,15 +303,21 @@ public class TerminalMain extends ApplicationAdapter {
         Gui.batch.draw(noise, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 
         //Draw fps
-        if (drawFps) {
-            Gui.begin(Gui.batch);
-            String str = Gdx.graphics.getFramesPerSecond() + "";
-            Gui.font.draw(Gui.batch, str, 5, Gdx.graphics.getHeight() - 5);
+        if (drawDebug) {
+            drawDebug();
         }
 
         //End rendering
         Gui.end(Gui.batch);
         Gui.end(Gui.sr);
+    }
+
+    private void drawDebug() {
+        Gui.begin(Gui.batch);
+        String str = Gdx.graphics.getFramesPerSecond() + "";
+        Gui.font.draw(Gui.batch, str, 5, Gdx.graphics.getHeight() - 5);
+        long usedMB = (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) / 1024 / 1024;
+        Gui.font.draw(Gui.batch, usedMB + "MB", 5, Gdx.graphics.getHeight() - 5 - Gui.font.getLineHeight());
     }
 
     private void drawSplitter() {

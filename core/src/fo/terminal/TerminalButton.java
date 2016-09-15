@@ -1,66 +1,64 @@
 package fo.terminal;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
-import gui.Button;
+import com.badlogic.gdx.scenes.scene2d.Actor;
 import gui.Gui;
 
 /**
  * @author austinbt
- *
  */
-class TerminalButton extends Button {
+public class TerminalButton{
 
-    private boolean selected = false;
-    private FileTerminalScreen terminalScreen;
-    private TerminalFile file;
+    private TerminalButtonListener listener;
+    private String text;
 
-    TerminalButton(FileTerminalScreen terminalScreen, TerminalFile file, String text, int x, int y, int width, int height) {
-        super(text, x, y, width, height);
-        this.terminalScreen = terminalScreen;
-        this.file = file;
+    public TerminalButton(String text) {
+        this.text = text;
     }
 
-    void setSelected(boolean selected) {
-        this.selected = selected;
+    public void setListener(TerminalButtonListener listener) {
+        this.listener = listener;
     }
 
-    private boolean isSelected() {
-        return selected;
-    }
-
-    public TerminalFile getFile() {
-        return file;
-    }
-
-    @Override
-    public void act(float delta) {
-        super.act(delta);
-
-        if (isMouseOver() && !isSelected()) {
-            terminalScreen.select(this);
+    public void click() {
+        if (listener != null) {
+            listener.clicked(this);
         }
     }
 
-    @Override
-    public void draw(Batch batch, float parentAlpha) {
-        //Draw button background
-        if (isSelected()) {
+    public static boolean isMouseOver(int x, int y, int width, int height) {
+        int mx = Gdx.input.getX();
+        int my = Gdx.graphics.getHeight() - Gdx.input.getY();
+
+        return mx >= x && mx <= x+width && my >= y && my <= y+height;
+    }
+
+    public static boolean isMouseJustDown() {
+        return Gdx.input.justTouched();
+    }
+
+    public static boolean isMouseJustDown(int x, int y, int width, int height) {
+        return isMouseJustDown() && isMouseOver(x, y, width, height);
+    }
+
+    public void draw(Batch batch, int x, int y, int width, int height, boolean selected) {
+        if (selected) {
             Gui.end(batch);
             Gui.begin(Gui.sr, ShapeRenderer.ShapeType.Filled, Gui.trim_color);
-            Gui.sr.rect(getX(), getY(), getWidth(), getHeight());
+
+            Gui.sr.rect(x, y, width, height);
+
             Gui.end(Gui.sr);
         }
 
         Gui.begin(batch);
-
-        //Draw text
-        if (isSelected()) {
+        if (selected) {
             TerminalMain.mediumFont.setColor(Gui.alternate_color);
         } else {
             TerminalMain.mediumFont.setColor(Gui.text_color);
         }
-        Gui.GLYPHS.setText(TerminalMain.mediumFont, text);
-        TerminalMain.mediumFont.draw(batch, text, getX() + 10, getY() + getHeight()/2 + Gui.GLYPHS.height/2, getWidth(), -1, false);
+        TerminalMain.mediumFont.draw(batch, text, x + 10, y + height/2 + TerminalMain.mediumFont.getLineHeight()/2);
     }
 }

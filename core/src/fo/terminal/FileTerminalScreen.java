@@ -49,66 +49,46 @@ class FileTerminalScreen extends TerminalScreen {
         buttons.clear();
 
         int availableSpace = Gdx.graphics.getHeight() - terminal.getHeightOfTitle() - 25;
-        int totalButtons = availableSpace/(BUTTON_HEIGHT + BUTTON_GAP);
-        int availableButtons = totalButtons;
+        int buttonsPerPage = availableSpace/(BUTTON_HEIGHT + BUTTON_GAP);
 
-        if (folder.getChildren().size() > totalButtons) {
-            availableButtons -= 2;
-        }
+        //TODO: Implement paging
 
-        maxIndex = availableButtons;
-        maxPage = (folder.getChildren().size()+1)/maxIndex;
-        index = 0;
-        page = 0;
+        index = -1;
 
         for (TerminalFile file : folder.getChildren()) {
-            buttons.add(new TerminalButton(this, file, file.getName(), -1000, -1000, 10, 10));
+            buttons.add(new TerminalFileButton(file));
         }
 
-        select(buttons.get(0));
+        if (!buttons.isEmpty()) {
+            select(buttons.get(0));
+        }
     }
 
     void select(TerminalButton button) {
         if (buttons.contains(button)) {
-            for (TerminalButton unselectButton : buttons) {
-                unselectButton.setSelected(false);
-            }
-
             index = buttons.indexOf(button);
-            page = 0;
-
-            while (index > maxIndex) {
-                page++;
-                index -= maxIndex;
-            }
-
-            buttons.get(index).setSelected(true);
         }
     }
 
     @Override
     public void act() {
-        for (TerminalButton button : buttons) {
-            button.act(Gdx.graphics.getDeltaTime());
-        }
+
     }
 
-    @Override
-    public void opened(TerminalMain terminal) {
-        this.terminal = terminal;
+    private int getRenderYForIndex(int index) {
+        return terminal.getHeightOfTitle() - BUTTON_GAP - BUTTON_HEIGHT - (BUTTON_GAP+BUTTON_HEIGHT)*index;
     }
 
     @Override
     public void draw(Batch batch) {
         int i = 0;
         for (TerminalButton button : buttons) {
-            if (i > maxIndex) {
-                break;
-            }
 
-            button.setPosition(100, Gdx.graphics.getHeight() - terminal.getHeightOfTitle() - SIDE_BORDER - i*(BUTTON_HEIGHT+BUTTON_GAP));
-            button.setSize(Gdx.graphics.getWidth() - SIDE_BORDER *2, BUTTON_HEIGHT);
-            button.draw(batch, 1f);
+            boolean selected = false;
+            if (i == index) {
+                selected = true;
+            }
+            button.draw(batch, SIDE_BORDER, getRenderYForIndex(i), Gdx.graphics.getWidth() - SIDE_BORDER*2, BUTTON_HEIGHT, selected);
 
             i++;
         }
@@ -118,49 +98,30 @@ class FileTerminalScreen extends TerminalScreen {
     public boolean keyDown(int keycode) {
         if (keycode == Input.Keys.DOWN || keycode == Input.Keys.S) {
             //Move down
-            if (index < maxIndex) {
-                select(buttons.get(index+maxIndex*page));
-                index++;
-                select(buttons.get(index+maxIndex*page));
-            }
 
-            //TODO: Fix bug out of bounds error when there are less than maxIndex buttons on the page
+            //TODO: Implement
 
             return true;
         } else if (keycode == Input.Keys.UP || keycode == Input.Keys.W) {
             //Move up
-            if (index > 0) {
-                select(buttons.get(index+maxIndex*page));
-                index--;
-                select(buttons.get(index+maxIndex*page));
-            }
+
+            //TODO: Implement
 
             return true;
         } else if (keycode == Input.Keys.SPACE || keycode == Input.Keys.ENTER) {
             //Select
+
             //TODO: Implement selecting
 
             return true;
         } else if (keycode == Input.Keys.LEFT || keycode == Input.Keys.A) {
             //Left
-            if (page > 0) {
-                select(buttons.get(index+maxIndex*page));
-                page--;
-                index = 0;
-                select(buttons.get(index+maxIndex*page));
-            }
 
             //TODO: Implement page changing
 
             return true;
         } else if (keycode == Input.Keys.RIGHT || keycode == Input.Keys.D) {
             //Right
-            if (page < maxPage) {
-                select(buttons.get(index+maxIndex*page));
-                page++;
-                index = 0;
-                select(buttons.get(index+maxIndex*page));
-            }
 
             //TODO: Implement page changing
 
