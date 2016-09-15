@@ -62,7 +62,7 @@ public class FileTerminalScreen extends TerminalScreen {
         page = 0;
 
         for (TerminalFile file : folder.getChildren()) {
-            buttons.add(new TerminalButton(this, file.getName(), -1000, -1000, 10, 10));
+            buttons.add(new TerminalButton(this, file, file.getName(), -1000, -1000, 10, 10));
         }
 
         select(buttons.get(0));

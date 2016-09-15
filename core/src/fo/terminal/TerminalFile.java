@@ -31,7 +31,9 @@ public class TerminalFile {
     }
 
     public void addChild(TerminalFile child) {
-        children.add(child);
+        if (!children.contains(child)) {
+            children.add(child);
+        }
     }
 
     public TerminalFile getParent() {
@@ -44,6 +46,10 @@ public class TerminalFile {
 
     public void setContents(Object contents) {
         this.contents = contents;
+    }
+
+    public String getName() {
+        return name;
     }
 
     public boolean isDirectory() {

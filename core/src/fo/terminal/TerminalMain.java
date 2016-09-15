@@ -4,6 +4,7 @@ import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.audio.Music;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
 import com.badlogic.gdx.backends.lwjgl.LwjglFrame;
 import com.badlogic.gdx.graphics.Color;
@@ -29,7 +30,7 @@ public class TerminalMain extends ApplicationAdapter {
     private static final int MAX_GLOW = 30;
     private Color glowColor;
 
-    private TerminalButton button;
+    private FileTerminalScreen screen;
 
     public static BitmapFont smallFont;
     public static BitmapFont mediumFont;
@@ -41,12 +42,14 @@ public class TerminalMain extends ApplicationAdapter {
     private boolean drawTitle = true;
     private boolean drawSplitter = true;
     private boolean drawFps = false;
-    private boolean playAudio = false;
+    private boolean playAudio = true;
 
     private LwjglFrame parentFrame;
 
     private Music backgroundAudioA, backgroundAudioB, backgroundAudioC;
+    private Sound buttonClickSound1, buttonClickSound2, buttonClickSound3;
     private float backgroundAudioVolume = 0.8f;
+    private float soundFXVolume = 0.8f;
 
     public void setParentFrame(LwjglFrame parentFrame) {
         this.parentFrame = parentFrame;
@@ -77,8 +80,15 @@ public class TerminalMain extends ApplicationAdapter {
         startBackgroundAudio();
 
         //TODO: REMOVE
-        button = new TerminalButton("Test button", 100, Gdx.graphics.getHeight() - getHeightOfTitle(), Gdx.graphics.getWidth() - 200, 40);
-        button.setSelected(true);
+        screen = new FileTerminalScreen();
+        screen.opened(this);
+        TerminalFile dir = new TerminalFile(null, true, "home");
+        TerminalFile dir2 = new TerminalFile(dir, true, "Test folder");
+        new TerminalFile(dir, false, "Test file 2");
+        new TerminalFile(dir, false, "Test file 3");
+        new TerminalFile(dir2, false, "Second text file");
+        screen.setDirectory(dir);
+        Gdx.input.setInputProcessor(screen);
         //------------
     }
 
@@ -99,6 +109,20 @@ public class TerminalMain extends ApplicationAdapter {
         }
     }
 
+    public void playButtonClick() {
+        switch (new Random().nextInt(3)) {
+            case 0:
+                buttonClickSound1.play(soundFXVolume);
+                break;
+            case 1:
+                buttonClickSound2.play(soundFXVolume);
+                break;
+            case 2:
+                buttonClickSound3.play(soundFXVolume);
+                break;
+        }
+    }
+
     private void loadAudio() {
         backgroundAudioA = Gdx.audio.newMusic(Gdx.files.internal("audio/obj_console_03_a_lp.wav"));
         backgroundAudioA.setLooping(true);
@@ -111,6 +135,10 @@ public class TerminalMain extends ApplicationAdapter {
         backgroundAudioC = Gdx.audio.newMusic(Gdx.files.internal("audio/obj_console_03_c_lp.wav"));
         backgroundAudioC.setLooping(true);
         backgroundAudioC.setVolume(backgroundAudioVolume);
+
+        buttonClickSound1 = Gdx.audio.newSound(Gdx.files.internal("audio/ui_hacking_charenter_01.wav"));
+        buttonClickSound2 = Gdx.audio.newSound(Gdx.files.internal("audio/ui_hacking_charenter_02.wav"));
+        buttonClickSound3 = Gdx.audio.newSound(Gdx.files.internal("audio/ui_hacking_charenter_03.wav"));
     }
 
     private void loadOverlayTextures() {
@@ -152,12 +180,13 @@ public class TerminalMain extends ApplicationAdapter {
         Gui.batch.setProjectionMatrix(matrix);
         Gui.sr.setProjectionMatrix(matrix);
 
-        //TODO: REMOVE
-        button.setPosition(100, Gdx.graphics.getHeight() - getHeightOfTitle() - 100);
+
     }
 
     private void act(float deltaTime) {
         updateGlow();
+
+        screen.act();
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.F3)) {
             drawFps = !drawFps;
@@ -222,6 +251,10 @@ public class TerminalMain extends ApplicationAdapter {
         backgroundAudioA.dispose();
         backgroundAudioB.dispose();
         backgroundAudioC.dispose();
+
+        buttonClickSound1.dispose();
+        buttonClickSound2.dispose();
+        buttonClickSound3.dispose();
     }
 
     @Override
@@ -239,9 +272,7 @@ public class TerminalMain extends ApplicationAdapter {
         Gui.begin(Gui.batch);
 
         //TODO: STANDARD RENDERING OF ALL OTHER ACTORS
-        //TODO: REMOVE
-        button.act(Gdx.graphics.getDeltaTime());
-        button.draw(Gui.batch, 1f);
+        screen.draw(Gui.batch);
 
         //Render title
         if (drawTitle) {

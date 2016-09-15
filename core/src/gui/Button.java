@@ -7,10 +7,10 @@ import com.badlogic.gdx.scenes.scene2d.Actor;
 
 public class Button extends Actor {
 
-    private boolean mouseDown = false;
+    protected boolean mouseDown = false;
     protected String text;
     
-    private ButtonAcceptListener listener;
+    protected ButtonAcceptListener listener;
 
     public Button(String text, int x, int y, int width, int height) {
         this.text = text;
@@ -38,7 +38,7 @@ public class Button extends Actor {
         }
     }
     
-    private boolean isMouseOver() {
+    protected boolean isMouseOver() {
         int x = Gdx.input.getX();
         int y = Gdx.graphics.getHeight() - Gdx.input.getY();
         return x > getX() && x < getX() + getWidth() && y > getY() && y < getY() + getHeight();

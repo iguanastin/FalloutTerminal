@@ -8,14 +8,17 @@ import gui.Gui;
 /**
  * @author austinbt
  *
- * //TODO: Implement mouse-over selecting
  */
 public class TerminalButton extends Button {
 
-    private boolean selected = false;
+    protected boolean selected = false;
+    protected FileTerminalScreen terminalScreen;
+    protected TerminalFile file;
 
-    public TerminalButton(String text, int x, int y, int width, int height) {
+    public TerminalButton(FileTerminalScreen terminalScreen, TerminalFile file, String text, int x, int y, int width, int height) {
         super(text, x, y, width, height);
+        this.terminalScreen = terminalScreen;
+        this.file = file;
     }
 
     public void setSelected(boolean selected) {
@@ -24,6 +27,21 @@ public class TerminalButton extends Button {
 
     public boolean isSelected() {
         return selected;
+    }
+
+    public TerminalFile getFile() {
+        return file;
+    }
+
+    @Override
+    public void act(float delta) {
+        super.act(delta);
+
+        if (isMouseOver() && !isSelected()) {
+            terminalScreen.select(this);
+        } else {
+
+        }
     }
 
     @Override
