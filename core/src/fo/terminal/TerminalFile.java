@@ -31,13 +31,18 @@ class TerminalFile {
     }
 
     void addChild(TerminalFile child) {
-        if (!children.contains(child)) {
+        if (!children.contains(child) && child.getParent() == null) {
             children.add(child);
+            child.setParent(this);
         }
     }
 
     TerminalFile getParent() {
         return parent;
+    }
+
+    public void setParent(TerminalFile parent) {
+        this.parent = parent;
     }
 
     Object getContents() {
