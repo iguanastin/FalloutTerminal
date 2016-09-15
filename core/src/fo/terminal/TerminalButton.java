@@ -9,23 +9,23 @@ import gui.Gui;
  * @author austinbt
  *
  */
-public class TerminalButton extends Button {
+class TerminalButton extends Button {
 
-    protected boolean selected = false;
-    protected FileTerminalScreen terminalScreen;
-    protected TerminalFile file;
+    private boolean selected = false;
+    private FileTerminalScreen terminalScreen;
+    private TerminalFile file;
 
-    public TerminalButton(FileTerminalScreen terminalScreen, TerminalFile file, String text, int x, int y, int width, int height) {
+    TerminalButton(FileTerminalScreen terminalScreen, TerminalFile file, String text, int x, int y, int width, int height) {
         super(text, x, y, width, height);
         this.terminalScreen = terminalScreen;
         this.file = file;
     }
 
-    public void setSelected(boolean selected) {
+    void setSelected(boolean selected) {
         this.selected = selected;
     }
 
-    public boolean isSelected() {
+    private boolean isSelected() {
         return selected;
     }
 
@@ -39,8 +39,6 @@ public class TerminalButton extends Button {
 
         if (isMouseOver() && !isSelected()) {
             terminalScreen.select(this);
-        } else {
-
         }
     }
 

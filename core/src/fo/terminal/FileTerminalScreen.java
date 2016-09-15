@@ -9,11 +9,11 @@ import java.util.ArrayList;
 /**
  * @author austinbt
  */
-public class FileTerminalScreen extends TerminalScreen {
+class FileTerminalScreen extends TerminalScreen {
 
     private static final int BUTTON_HEIGHT = 40;
     private static final int BUTTON_GAP = 15;
-    public static final int SIDE_BORDER = 100;
+    private static final int SIDE_BORDER = 100;
 
     private TerminalMain terminal;
 
@@ -23,14 +23,14 @@ public class FileTerminalScreen extends TerminalScreen {
     private int page = 0, index = 0;
     private int maxPage = 0, maxIndex = 0;
 
-    public FileTerminalScreen() {
+    FileTerminalScreen() {
         drawTitle = true;
         drawTitleSplitter = true;
 
         buttons = new ArrayList<TerminalButton>();
     }
 
-    public FileTerminalScreen setDirectory(TerminalFile file) {
+    FileTerminalScreen setDirectory(TerminalFile file) {
         if (!file.isDirectory()) {
             throw new TerminalFileException("Cannot open non-directory");
         }
@@ -68,7 +68,7 @@ public class FileTerminalScreen extends TerminalScreen {
         select(buttons.get(0));
     }
 
-    public void select(TerminalButton button) {
+    void select(TerminalButton button) {
         if (buttons.contains(button)) {
             for (TerminalButton unselectButton : buttons) {
                 unselectButton.setSelected(false);

@@ -3,8 +3,8 @@ package fo.terminal;
 /**
  * @author austinbt
  */
-public class TerminalFileException extends RuntimeException {
-    public TerminalFileException(String message) {
+class TerminalFileException extends RuntimeException {
+    TerminalFileException(String message) {
         super(message);
     }
 

@@ -32,9 +32,9 @@ public class TerminalMain extends ApplicationAdapter {
 
     private FileTerminalScreen screen;
 
-    public static BitmapFont smallFont;
-    public static BitmapFont mediumFont;
-    public static BitmapFont largeFont;
+    static BitmapFont smallFont;
+    static BitmapFont mediumFont;
+    static BitmapFont largeFont;
 
     private Texture vignette;
     private Texture noise;
@@ -196,7 +196,7 @@ public class TerminalMain extends ApplicationAdapter {
     /**
      * @return The distance from the top of the canvas to approximately one line-height below the title
      */
-    public int getHeightOfTitle() {
+    int getHeightOfTitle() {
         return TITLE_DISTANCE_FROM_TOP + (int) (largeFont.getLineHeight() * 3);
     }
 

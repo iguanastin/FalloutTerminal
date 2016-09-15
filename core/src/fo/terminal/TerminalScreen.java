@@ -8,9 +8,9 @@ import com.badlogic.gdx.graphics.g2d.Batch;
  *
  * //TODO: Implement screens into TerminalMain
  */
-public abstract class TerminalScreen implements InputProcessor {
-    protected boolean drawTitle = false;
-    protected boolean drawTitleSplitter = false;
+abstract class TerminalScreen implements InputProcessor {
+    boolean drawTitle = false;
+    boolean drawTitleSplitter = false;
 
     public abstract void draw(Batch batch);
 

@@ -5,7 +5,7 @@ import java.util.ArrayList;
 /**
  * @author austinbt
  */
-public class TerminalFile {
+class TerminalFile {
     private boolean directory = false;
 
     private TerminalFile parent;
@@ -15,7 +15,7 @@ public class TerminalFile {
 
     private String name;
 
-    public TerminalFile(TerminalFile parent, boolean directory, String name) {
+    TerminalFile(TerminalFile parent, boolean directory, String name) {
         this.parent = parent;
         this.directory = directory;
         this.name = name;
@@ -26,37 +26,37 @@ public class TerminalFile {
         }
     }
 
-    public ArrayList<TerminalFile> getChildren() {
+    ArrayList<TerminalFile> getChildren() {
         return children;
     }
 
-    public void addChild(TerminalFile child) {
+    void addChild(TerminalFile child) {
         if (!children.contains(child)) {
             children.add(child);
         }
     }
 
-    public TerminalFile getParent() {
+    TerminalFile getParent() {
         return parent;
     }
 
-    public Object getContents() {
+    Object getContents() {
         return contents;
     }
 
-    public void setContents(Object contents) {
+    void setContents(Object contents) {
         this.contents = contents;
     }
 
-    public String getName() {
+    String getName() {
         return name;
     }
 
-    public boolean isDirectory() {
+    boolean isDirectory() {
         return directory;
     }
 
-    public boolean isFile() {
+    boolean isFile() {
         return !directory;
     }
 }
