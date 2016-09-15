@@ -15,15 +15,13 @@ class FileTerminalScreen extends TerminalScreen {
     private static final int BUTTON_GAP = 15;
     private static final int SIDE_BORDER = 100;
 
-    private TerminalMain terminal;
-
     private TerminalFile folder;
 
     private ArrayList<TerminalButton> buttons;
-    private int page = 0, index = 0;
-    private int maxPage = 0, maxIndex = 0;
+    private int index = 0;
 
-    FileTerminalScreen() {
+    FileTerminalScreen(TerminalMain terminal) {
+        super(terminal);
         drawTitle = true;
         drawTitleSplitter = true;
 
@@ -38,7 +36,6 @@ class FileTerminalScreen extends TerminalScreen {
         this.folder = file;
 
         index = 0;
-        page = 0;
 
         generateButtons();
 
@@ -48,23 +45,24 @@ class FileTerminalScreen extends TerminalScreen {
     private void generateButtons() {
         buttons.clear();
 
-        int availableSpace = Gdx.graphics.getHeight() - terminal.getHeightOfTitle() - 25;
+        int availableSpace = Gdx.graphics.getHeight() - terminal.getHeightOfTitle() - BUTTON_GAP - BUTTON_HEIGHT;
         int buttonsPerPage = availableSpace/(BUTTON_HEIGHT + BUTTON_GAP);
 
         //TODO: Implement paging
 
-        index = -1;
+        index = 0;
 
         for (TerminalFile file : folder.getChildren()) {
             buttons.add(new TerminalFileButton(file));
         }
-
-        if (!buttons.isEmpty()) {
-            select(buttons.get(0));
-        }
     }
 
-    void select(TerminalButton button) {
+    @Override
+    public void opened() {
+        generateButtons();
+    }
+
+    public void select(TerminalButton button) {
         if (buttons.contains(button)) {
             index = buttons.indexOf(button);
         }
@@ -72,7 +70,17 @@ class FileTerminalScreen extends TerminalScreen {
 
     @Override
     public void act() {
+        int i = 0;
+        for (TerminalButton button : buttons) {
+            if (TerminalButton.isMouseOver(SIDE_BORDER, getRenderYForIndex(i), Gdx.graphics.getWidth() - SIDE_BORDER*2, BUTTON_HEIGHT)) {
+                index = i;
+            }
+            if (TerminalButton.isMouseJustDown(SIDE_BORDER, getRenderYForIndex(i), Gdx.graphics.getWidth() - SIDE_BORDER*2, BUTTON_HEIGHT)) {
+                button.click();
+            }
 
+            i++;
+        }
     }
 
     private int getRenderYForIndex(int index) {

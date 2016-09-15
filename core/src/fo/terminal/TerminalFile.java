@@ -16,7 +16,6 @@ class TerminalFile {
     private String name;
 
     TerminalFile(TerminalFile parent, boolean directory, String name) {
-        this.parent = parent;
         this.directory = directory;
         this.name = name;
 
@@ -26,18 +25,18 @@ class TerminalFile {
         }
     }
 
-    ArrayList<TerminalFile> getChildren() {
+    public ArrayList<TerminalFile> getChildren() {
         return children;
     }
 
-    void addChild(TerminalFile child) {
+    public void addChild(TerminalFile child) {
         if (!children.contains(child) && child.getParent() == null) {
             children.add(child);
             child.setParent(this);
         }
     }
 
-    TerminalFile getParent() {
+    public TerminalFile getParent() {
         return parent;
     }
 
@@ -45,23 +44,23 @@ class TerminalFile {
         this.parent = parent;
     }
 
-    Object getContents() {
+    public Object getContents() {
         return contents;
     }
 
-    void setContents(Object contents) {
+    public void setContents(Object contents) {
         this.contents = contents;
     }
 
-    String getName() {
+    public String getName() {
         return name;
     }
 
-    boolean isDirectory() {
+    public boolean isDirectory() {
         return directory;
     }
 
-    boolean isFile() {
+    public boolean isFile() {
         return !directory;
     }
 }

@@ -80,13 +80,13 @@ public class TerminalMain extends ApplicationAdapter {
         startBackgroundAudio();
 
         //TODO: REMOVE
-        screen = new FileTerminalScreen();
-        screen.opened(this);
+        screen = new FileTerminalScreen(this);
         TerminalFile dir = new TerminalFile(null, true, "home");
         TerminalFile dir2 = new TerminalFile(dir, true, "Test folder");
         new TerminalFile(dir, false, "Test file 2");
         new TerminalFile(dir, false, "Test file 3");
         new TerminalFile(dir2, false, "Second text file");
+
         screen.setDirectory(dir);
         Gdx.input.setInputProcessor(screen);
         //------------
