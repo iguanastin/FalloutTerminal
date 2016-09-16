@@ -86,7 +86,7 @@ public class TerminalMain extends ApplicationAdapter {
     /**
      * Dirt texture to be rendered over the screen
      */
-    private Texture dirtTexture;
+    private Texture noiseTexture;
 
 
     /**
@@ -311,8 +311,8 @@ public class TerminalMain extends ApplicationAdapter {
      * @see TerminalMain#create()
      */
     private void loadOverlayTextures() {
-        vignetteTexture = new Texture(Gdx.files.internal("vignetteTexture.png"));
-        dirtTexture = new Texture(Gdx.files.internal("dirtTexture.png"));
+        vignetteTexture = new Texture(Gdx.files.internal("vignette.png"));
+        noiseTexture = new Texture(Gdx.files.internal("noise.png"));
 
         Gdx.app.log("Setup", "(" + getRunTime() + ") Loaded all overlay textures");
     }
@@ -494,7 +494,7 @@ public class TerminalMain extends ApplicationAdapter {
      */
     private void disposeOverlayTextures() {
         vignetteTexture.dispose();
-        dirtTexture.dispose();
+        noiseTexture.dispose();
 
         Gdx.app.log("Dispose", "(" + getRunTime() + ") Disposed of overlay textures");
     }
@@ -560,9 +560,9 @@ public class TerminalMain extends ApplicationAdapter {
         //Draw glow
         drawGlow();
 
-        //Render dirtTexture
+        //Render noiseTexture
         Gui.begin(Gui.batch);
-        Gui.batch.draw(dirtTexture, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        Gui.batch.draw(noiseTexture, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 
         //Draw fps
         if (drawDebug) {
