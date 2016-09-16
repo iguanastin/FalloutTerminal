@@ -41,7 +41,7 @@ class FileTerminalScreen extends TerminalScreen {
             generateDirectoryButtons();
         }
 
-        Gdx.app.log("FileScreen", "Switched to file \"" + file + "\"");
+        Gdx.app.log("FileScreen", "(" + TerminalMain.getRunTime() + ") Switched to file \"" + file + "\"");
 
         return this;
     }

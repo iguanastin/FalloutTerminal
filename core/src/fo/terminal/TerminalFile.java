@@ -36,11 +36,27 @@ class TerminalFile {
         }
     }
 
+    public boolean removeChild(TerminalFile file) {
+        if (children.contains(file)) {
+            file.nullifyParent();
+            return children.remove(file);
+        }
+
+        return false;
+    }
+
+    private void nullifyParent() {
+        parent = null;
+    }
+
     public TerminalFile getParent() {
         return parent;
     }
 
-    public void setParent(TerminalFile parent) {
+    private void setParent(TerminalFile parent) {
+        if (this.parent != null) {
+            this.parent.removeChild(this);
+        }
         this.parent = parent;
     }
 
