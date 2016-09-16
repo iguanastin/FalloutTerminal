@@ -20,6 +20,9 @@ class FileTerminalScreen extends TerminalScreen {
     private ArrayList<TerminalButton> buttons;
     private int index = 0;
 
+    private int lastMX = 0;
+    private int lastMY = 0;
+
     FileTerminalScreen(TerminalMain terminal) {
         super(terminal);
         drawTitle = true;
@@ -46,7 +49,7 @@ class FileTerminalScreen extends TerminalScreen {
         buttons.clear();
 
         int availableSpace = Gdx.graphics.getHeight() - terminal.getHeightOfTitle() - BUTTON_GAP - BUTTON_HEIGHT;
-        int buttonsPerPage = availableSpace/(BUTTON_HEIGHT + BUTTON_GAP);
+        int buttonsPerPage = availableSpace / (BUTTON_HEIGHT + BUTTON_GAP);
 
         //TODO: Implement paging
 
@@ -58,16 +61,13 @@ class FileTerminalScreen extends TerminalScreen {
                 button.setListener(new TerminalButtonListener() {
                     @Override
                     public void clicked(TerminalButton button) {
-                        terminal.playButtonClick();
-                        setDirectory(((TerminalFileButton)button).getFile());
+                        setDirectory(((TerminalFileButton) button).getFile());
                     }
                 });
             } else {
                 button.setListener(new TerminalButtonListener() {
                     @Override
                     public void clicked(TerminalButton button) {
-                        terminal.playButtonClick();
-
                         //TODO: Implement file viewing
                     }
                 });
@@ -89,14 +89,33 @@ class FileTerminalScreen extends TerminalScreen {
 
     @Override
     public void act() {
+        handleMouseInput();
+    }
+
+    private void handleMouseInput() {
         int i = 0;
         for (TerminalButton button : buttons) {
-            if (TerminalButton.isMouseOver(SIDE_BORDER, getRenderYForIndex(i), Gdx.graphics.getWidth() - SIDE_BORDER*2, BUTTON_HEIGHT)) {
-                index = i;
+            //Mouse over button
+            if (TerminalButton.isMouseOver(SIDE_BORDER, getRenderYForIndex(i), Gdx.graphics.getWidth() - SIDE_BORDER * 2, BUTTON_HEIGHT)) {
+                if (Gdx.input.getX() != lastMX || Gdx.input.getY() != lastMY) {
+                    lastMX = Gdx.input.getX();
+                    lastMY = Gdx.input.getY();
+
+                    if (index != i) {
+                        terminal.playButtonClick();
+                    }
+
+                    index = i;
+                }
             }
-            if (TerminalButton.isMouseJustDown(SIDE_BORDER, getRenderYForIndex(i), Gdx.graphics.getWidth() - SIDE_BORDER*2, BUTTON_HEIGHT)) {
-                button.click();
-                break; //MUST BREAK OR LOOP WILL THROW EXCEPTION
+
+            //Mouse down over button
+            if (TerminalButton.isMouseJustDown(SIDE_BORDER, getRenderYForIndex(i), Gdx.graphics.getWidth() - SIDE_BORDER * 2, BUTTON_HEIGHT)) {
+                if (index == i) {
+                    terminal.playButtonClick();
+                    button.click();
+                    break; //MUST BREAK OR LOOP WILL THROW EXCEPTION
+                }
             }
 
             i++;
@@ -104,7 +123,7 @@ class FileTerminalScreen extends TerminalScreen {
     }
 
     private int getRenderYForIndex(int index) {
-        return Gdx.graphics.getHeight() - terminal.getHeightOfTitle() - BUTTON_GAP - BUTTON_HEIGHT - (BUTTON_GAP+BUTTON_HEIGHT)*index;
+        return Gdx.graphics.getHeight() - terminal.getHeightOfTitle() - BUTTON_GAP - BUTTON_HEIGHT - (BUTTON_GAP + BUTTON_HEIGHT) * index;
     }
 
     @Override
@@ -116,7 +135,7 @@ class FileTerminalScreen extends TerminalScreen {
             if (i == index) {
                 selected = true;
             }
-            button.draw(batch, SIDE_BORDER, getRenderYForIndex(i), Gdx.graphics.getWidth() - SIDE_BORDER*2, BUTTON_HEIGHT, selected);
+            button.draw(batch, SIDE_BORDER, getRenderYForIndex(i), Gdx.graphics.getWidth() - SIDE_BORDER * 2, BUTTON_HEIGHT, selected);
 
             i++;
         }
@@ -126,8 +145,9 @@ class FileTerminalScreen extends TerminalScreen {
     public boolean keyDown(int keycode) {
         if (keycode == Input.Keys.DOWN || keycode == Input.Keys.S) {
             //Move down
-            if (index < buttons.size()-1) {
+            if (index < buttons.size() - 1) {
                 index++;
+                terminal.playButtonClick();
             }
 
             return true;
@@ -135,6 +155,7 @@ class FileTerminalScreen extends TerminalScreen {
             //Move up
             if (index > 0) {
                 index--;
+                terminal.playButtonClick();
             }
 
             return true;
@@ -142,6 +163,7 @@ class FileTerminalScreen extends TerminalScreen {
             //Select
             if (index < buttons.size()) {
                 buttons.get(index).click();
+                terminal.playButtonClick();
             }
 
             return true;

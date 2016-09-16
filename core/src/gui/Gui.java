@@ -8,6 +8,7 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.math.Matrix4;
 
 /**
  * Collection of GUI descriptors and utility functions.
@@ -58,12 +59,12 @@ public abstract class Gui {
      */
     public static BitmapFont font;
     
-    public static final GlyphLayout GLYPHS = new GlyphLayout();
+    public static GlyphLayout GLYPHS;
     
     /**
      * Disposes and recreates renderers. Should be called when window is resized to apply effects of viewport changes to rendering.
      */
-    public static void resetRenderers() {
+    public static void setupRenderers() {
         if (batch != null) {
             batch.dispose();
         }
@@ -80,6 +81,15 @@ public abstract class Gui {
         font = new BitmapFont();
         
         font.setColor(text_color);
+
+        GLYPHS = new GlyphLayout();
+    }
+
+    public static void resizeRenderers(int width, int height) {
+        Matrix4 matrix = new Matrix4();
+        matrix.setToOrtho2D(0, 0, width, height);
+        batch.setProjectionMatrix(matrix);
+        sr.setProjectionMatrix(matrix);
     }
     
     /**

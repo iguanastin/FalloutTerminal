@@ -61,7 +61,7 @@ public class TerminalMain extends ApplicationAdapter {
         setGuiVariables();
 
         //Initialize renderers
-        Gui.resetRenderers();
+        Gui.setupRenderers();
 
         //Initialize scrolling thing
         scrollingThingPos = Gdx.graphics.getHeight();
@@ -167,6 +167,7 @@ public class TerminalMain extends ApplicationAdapter {
     private void generateFonts() {
         FreeTypeFontGenerator gen = new FreeTypeFontGenerator(Gdx.files.internal("monofont.ttf"));
         FreeTypeFontGenerator.FreeTypeFontParameter param = new FreeTypeFontGenerator.FreeTypeFontParameter();
+
         param.size = 12;
         param.kerning = false;
         smallFont = gen.generateFont(param);
@@ -174,14 +175,17 @@ public class TerminalMain extends ApplicationAdapter {
         mediumFont = gen.generateFont(param);
         param.size = 48;
         largeFont = gen.generateFont(param);
+
         smallFont.setColor(Gui.text_color);
         mediumFont.setColor(Gui.text_color);
         largeFont.setColor(Gui.text_color);
+
+        gen.dispose();
     }
 
     @Override
     public void resize(int width, int height) {
-//        Gui.resetRenderers();
+//        Gui.setupRenderers();
 
         Matrix4 matrix = new Matrix4();
         matrix.setToOrtho2D(0, 0, width, height);
@@ -240,6 +244,8 @@ public class TerminalMain extends ApplicationAdapter {
 
     @Override
     public void dispose() {
+        super.dispose();
+
         //Dispose renderers
         Gui.dispose();
 
@@ -265,6 +271,7 @@ public class TerminalMain extends ApplicationAdapter {
     }
 
     private void disposeAudio() {
+        //Dispose audio
         backgroundAudioA.dispose();
         backgroundAudioB.dispose();
         backgroundAudioC.dispose();
