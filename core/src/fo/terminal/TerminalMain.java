@@ -21,41 +21,130 @@ import java.util.Random;
 
 public class TerminalMain extends ApplicationAdapter {
 
+    /**
+     * Distance from the top of the canvas to the top of the title text
+     */
     private static final int TITLE_DISTANCE_FROM_TOP = 75;
 
-    private int scrollingThingPos = 0;
-    private Color scrollingThingColor;
 
+    /**
+     * Current position of the polling light
+     */
+    private int pollingLightPos = 0;
+    /**
+     * Current color of the polling light.
+     * <p>
+     * The alpha value of this color object is updated every frame.
+     */
+    private Color pollingLightColor;
+
+
+    /**
+     * Current alpha of the glow
+     */
     private int glow = 0;
+    /**
+     * Whether or not this glow cycle is increasing glow, or decreasing glow.
+     */
     private boolean glowIncrease = true;
+    /**
+     * Maximum glow value
+     */
     private static final int MAX_GLOW = 30;
+    /**
+     * Current glow color object
+     */
     private Color glowColor;
 
+
+    /**
+     * Currently active TerminalScreen.
+     *
+     * Can be null.
+     */
     private TerminalScreen screen;
 
-    static BitmapFont smallFont;
-    static BitmapFont mediumFont;
-    static BitmapFont largeFont;
 
-    private Texture vignette;
-    private Texture noise;
+    /**
+     * Smallest terminal font
+     */
+    public static BitmapFont smallFont;
+    /**
+     * Standard terminal font
+     */
+    public static BitmapFont mediumFont;
+    /**
+     * Largest terminal font
+     */
+    public static BitmapFont largeFont;
 
+
+    /**
+     * Vignette texture to be rendered over the screen
+     */
+    private Texture vignetteTexture;
+    /**
+     * Dirt texture to be rendered over the screen
+     */
+    private Texture dirtTexture;
+
+
+    /**
+     * Whether or not debug info is being drawn
+     */
     private boolean drawDebug = false;
 
+
+    /**
+     * LwjglFrame containing this application
+     */
     private LwjglFrame lwjglFrame;
 
+
+    /**
+     * Whether or not any audio will be played
+     */
     private boolean playAudio = true;
+    /**
+     * Background music objects
+     */
     private Music backgroundAudioA, backgroundAudioB, backgroundAudioC;
+    /**
+     * Button click sound effect objects
+     */
     private Sound buttonClickSound1, buttonClickSound2, buttonClickSound3;
+    /**
+     * Scalar value of the volume of background music [0f, 1f]
+     */
     private float backgroundAudioVolume = 0.8f;
+    /**
+     * Scalar value of the volume of sound effects [0f, 1f]
+     */
     private float soundFXVolume = 0.8f;
 
+
+    /**
+     * Time in milliseconds that create was called.
+     *
+     * @see TerminalMain#create()
+     */
     private static long startTime;
 
+
+    /**
+     * Set the LwjglFrame that contains this application
+     *
+     * @param lwjglFrame LwjglFrame to set
+     */
     public void setLwjglFrame(LwjglFrame lwjglFrame) {
         this.lwjglFrame = lwjglFrame;
     }
 
+    /**
+     * Called when this application is created.
+     *
+     * Initializes and loads all resources that are needed.
+     */
     @Override
     public void create() {
         startTime = System.currentTimeMillis();
@@ -67,8 +156,8 @@ public class TerminalMain extends ApplicationAdapter {
         Gui.setupRenderers();
 
         //Initialize scrolling thing
-        scrollingThingPos = Gdx.graphics.getHeight();
-        scrollingThingColor = Gui.trim_color.cpy();
+        pollingLightPos = Gdx.graphics.getHeight();
+        pollingLightColor = Gui.trim_color.cpy();
 
         //Create glow color object
         glowColor = Gui.trim_color.cpy();
@@ -99,6 +188,13 @@ public class TerminalMain extends ApplicationAdapter {
         Gdx.app.log("Create", "(" + getRunTime() + ") Finished creating");
     }
 
+    /**
+     * Find the time in since create was first called on this object.
+     *
+     * Calling this before create has been called will return unexpected results.
+     *
+     * @return The time this program has been running in a human readable format.
+     */
     public static String getRunTime() {
         int hours = 0;
         int minutes = 0;
@@ -120,10 +216,10 @@ public class TerminalMain extends ApplicationAdapter {
 
         String work = "";
         if (hours > 0) {
-            work += hours + "h, ";
+            work += hours + "h ";
         }
         if (minutes > 0) {
-            work += minutes + "m, ";
+            work += minutes + "m ";
         }
         if (seconds > 0) {
             work += seconds;
@@ -133,6 +229,9 @@ public class TerminalMain extends ApplicationAdapter {
         return work;
     }
 
+    /**
+     * Starts a random background audio file
+     */
     private void startBackgroundAudio() {
         if (!playAudio) {
             return;
@@ -154,6 +253,11 @@ public class TerminalMain extends ApplicationAdapter {
         Gdx.app.log("Setup", "(" + getRunTime() + ") Started background audio. (A:" + backgroundAudioA.isPlaying() + ", B:" + backgroundAudioB.isPlaying() + ", C:" + backgroundAudioC.isPlaying() + ")");
     }
 
+    /**
+     * Plays a randomized button click sound effect.
+     *
+     * If audio has not been loaded, a NullPointerException will be thrown.
+     */
     public void playButtonClick() {
         if (!playAudio) {
             return;
@@ -172,6 +276,13 @@ public class TerminalMain extends ApplicationAdapter {
         }
     }
 
+    /**
+     * Loads all audio files required for this application.
+     *
+     * Automatically called by create() when the application is launched
+     *
+     * @see TerminalMain#create()
+     */
     private void loadAudio() {
         backgroundAudioA = Gdx.audio.newMusic(Gdx.files.internal("audio/obj_console_03_a_lp.wav"));
         backgroundAudioA.setLooping(true);
@@ -192,13 +303,27 @@ public class TerminalMain extends ApplicationAdapter {
         Gdx.app.log("Setup", "(" + getRunTime() + ") Loaded all audio files");
     }
 
+    /**
+     * Loads all overlay textures used by tihs application.
+     *
+     * Automatically called by create() when the application is launched
+     *
+     * @see TerminalMain#create()
+     */
     private void loadOverlayTextures() {
-        vignette = new Texture(Gdx.files.internal("vignette.png"));
-        noise = new Texture(Gdx.files.internal("noise.png"));
+        vignetteTexture = new Texture(Gdx.files.internal("vignetteTexture.png"));
+        dirtTexture = new Texture(Gdx.files.internal("dirtTexture.png"));
 
         Gdx.app.log("Setup", "(" + getRunTime() + ") Loaded all overlay textures");
     }
 
+    /**
+     * Initializes Gui variables.
+     *
+     * Automatically called by create() when this application is launched
+     *
+     * @see TerminalMain#create()
+     */
     private void setGuiVariables() {
         Gui.background_color = new Color(8f / 255f, 30f / 255f, 16f / 255f, 1f);
         Gui.text_color = new Color(49f / 255f, 255f / 255f, 149f / 255f, 1f);
@@ -211,6 +336,13 @@ public class TerminalMain extends ApplicationAdapter {
         Gdx.app.log("Setup", "(" + getRunTime() + ") Setup Gui variables");
     }
 
+    /**
+     * Generates terminal fonts for this application.
+     *
+     * Automatically called by create() when this application is launched
+     *
+     * @see TerminalMain#create()
+     */
     private void generateFonts() {
         FreeTypeFontGenerator gen = new FreeTypeFontGenerator(Gdx.files.internal("monofont.ttf"));
         FreeTypeFontGenerator.FreeTypeFontParameter param = new FreeTypeFontGenerator.FreeTypeFontParameter();
@@ -232,6 +364,12 @@ public class TerminalMain extends ApplicationAdapter {
         Gdx.app.log("Setup", "(" + getRunTime() + ") Generated fonts");
     }
 
+    /**
+     * Called when the application window has been resized.
+     *
+     * @param width Width of the resized canvas
+     * @param height Height of the resized canvas
+     */
     @Override
     public void resize(int width, int height) {
         Matrix4 matrix = new Matrix4();
@@ -242,6 +380,11 @@ public class TerminalMain extends ApplicationAdapter {
         Gdx.app.log("Resize", "(" + getRunTime() + ") Resized window to " + width + "x" + height);
     }
 
+    /**
+     * Opens a given TerminalScreen in this terminal and closes the previous one (if non-null)
+     *
+     * @param screen New screen to open
+     */
     public void openScreen(TerminalScreen screen) {
         if (this.screen != null) {
             this.screen.closed();
@@ -255,10 +398,19 @@ public class TerminalMain extends ApplicationAdapter {
         Gdx.app.log("ScreenChange", "(" + getRunTime() + ") Changed to TerminalScreen: " + screen);
     }
 
+    /**
+     * Updates non-rendering actions for this Terminal.
+     *
+     * Called from render() before any rendering has happened.
+     *
+     * @param deltaTime Time in seconds since last call to act
+     */
     private void act(float deltaTime) {
-        updateGlow();
+        updateKeyboardInput();
 
-        screen.act();
+        if (screen != null) {
+            screen.act();
+        }
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.F3)) {
             drawDebug = !drawDebug;
@@ -266,13 +418,16 @@ public class TerminalMain extends ApplicationAdapter {
     }
 
     /**
-     * @return The distance from the top of the canvas to approximately one line-height below the title
+     * @return The distance from the top of the canvas to the bottom of the title and title splitter.
      */
     int getHeightOfTitle() {
         return TITLE_DISTANCE_FROM_TOP + (int) (largeFont.getLineHeight() * 3);
     }
 
-    private void updateGlow() {
+    /**
+     * Checks on keyboard input
+     */
+    private void updateKeyboardInput() {
         //Is ALT currently down
         if (Gdx.input.isKeyPressed(Input.Keys.ALT_LEFT) || Gdx.input.isKeyPressed(Input.Keys.ALT_RIGHT)) {
             //Is enter just pressed
@@ -284,6 +439,9 @@ public class TerminalMain extends ApplicationAdapter {
         }
     }
 
+    /**
+     * Toggles fullscreen status
+     */
     private void toggleFullscreen() {
         if (!Gdx.graphics.isFullscreen()) {
             Gdx.graphics.setFullscreenMode(Gdx.graphics.getDisplayMode());
@@ -295,6 +453,14 @@ public class TerminalMain extends ApplicationAdapter {
         Gdx.app.log("Fullscreen", "(" + getRunTime() + ") Toggled fullscreen to: " + Gdx.graphics.isFullscreen());
     }
 
+    /**
+     * Disposes of all application resources
+     *
+     * @see TerminalMain#disposeAudio()
+     * @see TerminalMain#disposeFonts()
+     * @see TerminalMain#disposeOverlayTextures()
+     * @see Gui#dispose()
+     */
     @Override
     public void dispose() {
         //Dispose renderers
@@ -309,12 +475,12 @@ public class TerminalMain extends ApplicationAdapter {
         //Dispose of audio
         disposeAudio();
 
-        //Dispose GDX
-        super.dispose();
-
         Gdx.app.log("Dispose", "(" + getRunTime() + ") Disposed of all resources");
     }
 
+    /**
+     * Disposes of this application's generated fonts
+     */
     private void disposeFonts() {
         smallFont.dispose();
         mediumFont.dispose();
@@ -323,13 +489,19 @@ public class TerminalMain extends ApplicationAdapter {
         Gdx.app.log("Dispose", "(" + getRunTime() + ") Disposed of fonts");
     }
 
+    /**
+     * Disposes of this application's overlay textures
+     */
     private void disposeOverlayTextures() {
-        vignette.dispose();
-        noise.dispose();
+        vignetteTexture.dispose();
+        dirtTexture.dispose();
 
         Gdx.app.log("Dispose", "(" + getRunTime() + ") Disposed of overlay textures");
     }
 
+    /**
+     * Disposes of this application's audio clips
+     */
     private void disposeAudio() {
         //Dispose audio
         backgroundAudioA.dispose();
@@ -343,6 +515,15 @@ public class TerminalMain extends ApplicationAdapter {
         Gdx.app.log("Dispose", "(" + getRunTime() + ") Disposed of audio");
     }
 
+    /**
+     * Central game loop. Called by application window to update this game and render it.
+     *
+     * act(float) is called before any rendering occurs.
+     *
+     * Renders everything.
+     *
+     * @see TerminalMain#act(float)
+     */
     @Override
     public void render() {
         //Act
@@ -370,18 +551,18 @@ public class TerminalMain extends ApplicationAdapter {
         }
 
         //Render scrolling light thing
-        drawScrollingLightThing();
+        drawPollingLight();
 
-        //Render vignette
+        //Render vignetteTexture
         Gui.begin(Gui.batch);
-        Gui.batch.draw(vignette, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        Gui.batch.draw(vignetteTexture, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 
         //Draw glow
         drawGlow();
 
-        //Render noise
+        //Render dirtTexture
         Gui.begin(Gui.batch);
-        Gui.batch.draw(noise, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        Gui.batch.draw(dirtTexture, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 
         //Draw fps
         if (drawDebug) {
@@ -393,6 +574,9 @@ public class TerminalMain extends ApplicationAdapter {
         Gui.end(Gui.sr);
     }
 
+    /**
+     * Draws debug information to the top left corner of the screen
+     */
     private void drawDebug() {
         Gui.begin(Gui.batch);
 
@@ -409,6 +593,9 @@ public class TerminalMain extends ApplicationAdapter {
         Gui.drawTextInWidth(Gui.batch, smallFont, "Total: " + BigDecimal.valueOf(totalMB).setScale(2, BigDecimal.ROUND_HALF_UP).floatValue() + "MB", 5, Gdx.graphics.getHeight() - 8 - Gui.font.getLineHeight()*2, 200);
     }
 
+    /**
+     * Draws a splitter line below the title text
+     */
     private void drawSplitter() {
         Gui.end(Gui.batch);
         Gui.begin(Gui.sr, ShapeRenderer.ShapeType.Filled, Gui.trim_color);
@@ -419,6 +606,9 @@ public class TerminalMain extends ApplicationAdapter {
         Gui.end(Gui.sr);
     }
 
+    /**
+     * Draws screen glow overlay
+     */
     private void drawGlow() {
         if (glowIncrease) {
             glow++;
@@ -441,6 +631,9 @@ public class TerminalMain extends ApplicationAdapter {
         Gdx.gl.glDisable(GL20.GL_BLEND);
     }
 
+    /**
+     * Draws title text
+     */
     private void drawTitleText() {
         Gui.begin(Gui.batch);
 
@@ -458,6 +651,9 @@ public class TerminalMain extends ApplicationAdapter {
         largeFont.draw(Gui.batch, bottomLine, Gdx.graphics.getWidth() / 2 - Gui.GLYPHS.width / 2, Gdx.graphics.getHeight() - TITLE_DISTANCE_FROM_TOP - largeFont.getLineHeight() * 2);
     }
 
+    /**
+     * Draws dim background lines
+     */
     private void drawBackgroundLines() {
         Gui.end(Gui.batch);
         Gui.begin(Gui.sr, ShapeRenderer.ShapeType.Filled, Gui.alternate_color);
@@ -471,20 +667,23 @@ public class TerminalMain extends ApplicationAdapter {
         Gui.end(Gui.sr);
     }
 
-    private void drawScrollingLightThing() {
+    /**
+     * Draws polling light
+     */
+    private void drawPollingLight() {
         Gui.end(Gui.batch);
         Gdx.gl.glEnable(GL20.GL_BLEND);
         Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
-        Gui.begin(Gui.sr, ShapeRenderer.ShapeType.Line, scrollingThingColor);
+        Gui.begin(Gui.sr, ShapeRenderer.ShapeType.Line, pollingLightColor);
         for (int i = 0; i < 127; i++) {
-            scrollingThingColor.a = (128 - i) / 255f;
-            Gui.sr.setColor(scrollingThingColor);
+            pollingLightColor.a = (128 - i) / 255f;
+            Gui.sr.setColor(pollingLightColor);
 
-            Gui.sr.line(0, scrollingThingPos + i, Gdx.graphics.getWidth(), scrollingThingPos + i);
+            Gui.sr.line(0, pollingLightPos + i, Gdx.graphics.getWidth(), pollingLightPos + i);
         }
-        scrollingThingPos -= 3;
-        if (scrollingThingPos < -Gdx.graphics.getHeight()) {
-            scrollingThingPos = Gdx.graphics.getHeight();
+        pollingLightPos -= 3;
+        if (pollingLightPos < -Gdx.graphics.getHeight()) {
+            pollingLightPos = Gdx.graphics.getHeight();
         }
         Gui.end(Gui.sr);
         Gdx.gl.glDisable(GL20.GL_BLEND);

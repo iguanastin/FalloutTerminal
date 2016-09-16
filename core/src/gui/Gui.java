@@ -2,6 +2,7 @@ package gui;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
@@ -198,7 +199,7 @@ public abstract class Gui {
      */
     public static void enableScissor(int x, int y, int width, int height) {
         Gdx.gl.glScissor(x, y, width, height);
-        Gdx.gl.glEnable(Gdx.gl.GL_SCISSOR_TEST);
+        Gdx.gl.glEnable(GL20.GL_SCISSOR_TEST);
     }
     
     /**
@@ -207,7 +208,7 @@ public abstract class Gui {
      * @see #enableScissor(int, int, int, int)
      */
     public static void disableScissor() {
-        Gdx.gl.glDisable(Gdx.gl.GL_SCISSOR_TEST);
+        Gdx.gl.glDisable(GL20.GL_SCISSOR_TEST);
     }
     
     /**

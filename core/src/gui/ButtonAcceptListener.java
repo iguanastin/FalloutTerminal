@@ -1,5 +1,5 @@
 package gui;
 
 public interface ButtonAcceptListener {
-    public void accepted(Button button);
+    void accepted(Button button);
 }
