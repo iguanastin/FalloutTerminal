@@ -32,12 +32,12 @@ class FileTerminalScreen extends TerminalScreen {
         buttons = new ArrayList<TerminalButton>();
     }
 
-    FileTerminalScreen setFile(TerminalFile file) {
+    public FileTerminalScreen setFile(TerminalFile file) {
         this.file = file;
 
         index = 0;
 
-        if (file.isDirectory()) {
+        if (file != null && file.isDirectory()) {
             generateDirectoryButtons();
         }
 
@@ -47,8 +47,8 @@ class FileTerminalScreen extends TerminalScreen {
     private void generateDirectoryButtons() {
         buttons.clear();
 
-        int availableSpace = Gdx.graphics.getHeight() - terminal.getHeightOfTitle() - BUTTON_GAP - BUTTON_HEIGHT;
-        int buttonsPerPage = availableSpace / (BUTTON_HEIGHT + BUTTON_GAP);
+//        int availableSpace = Gdx.graphics.getHeight() - terminal.getHeightOfTitle() - BUTTON_GAP - BUTTON_HEIGHT;
+//        int buttonsPerPage = availableSpace / (BUTTON_HEIGHT + BUTTON_GAP);
 
         //TODO: Implement paging
 
@@ -68,7 +68,9 @@ class FileTerminalScreen extends TerminalScreen {
 
     @Override
     public void opened() {
-        generateDirectoryButtons();
+        if (file != null && file.isDirectory()) {
+            generateDirectoryButtons();
+        }
     }
 
     @Override
@@ -146,6 +148,27 @@ class FileTerminalScreen extends TerminalScreen {
 
     @Override
     public boolean keyDown(int keycode) {
+        if (file != null) {
+            if (file.isDirectory()) {
+                if (handleDirectoryKeyDown(keycode)) return true;
+            } else if (file.isFile()) {
+                if (handleFileKeyDown(keycode)) return true;
+            }
+        }
+
+        return false;
+    }
+
+    private boolean handleFileKeyDown(int keycode) {
+        if (keycode == Input.Keys.ESCAPE || keycode == Input.Keys.BACKSPACE) {
+            setFile(file.getParent());
+            return true;
+        }
+
+        return false;
+    }
+
+    private boolean handleDirectoryKeyDown(int keycode) {
         if (keycode == Input.Keys.DOWN || keycode == Input.Keys.S) {
             //Move down
             if (index < buttons.size() - 1) {
@@ -180,6 +203,11 @@ class FileTerminalScreen extends TerminalScreen {
             //Right
 
             //TODO: Implement page changing
+
+            return true;
+        } else if (keycode == Input.Keys.ESCAPE || keycode == Input.Keys.BACKSPACE) {
+            //Go back
+            setFile(file.getParent());
 
             return true;
         }
