@@ -53,7 +53,26 @@ class FileTerminalScreen extends TerminalScreen {
         index = 0;
 
         for (TerminalFile file : folder.getChildren()) {
-            buttons.add(new TerminalFileButton(file));
+            TerminalButton button = new TerminalFileButton(file);
+            if (file.isDirectory()) {
+                button.setListener(new TerminalButtonListener() {
+                    @Override
+                    public void clicked(TerminalButton button) {
+                        terminal.playButtonClick();
+                        setDirectory(((TerminalFileButton)button).getFile());
+                    }
+                });
+            } else {
+                button.setListener(new TerminalButtonListener() {
+                    @Override
+                    public void clicked(TerminalButton button) {
+                        terminal.playButtonClick();
+
+                        //TODO: Implement file viewing
+                    }
+                });
+            }
+            buttons.add(button);
         }
     }
 
@@ -77,6 +96,7 @@ class FileTerminalScreen extends TerminalScreen {
             }
             if (TerminalButton.isMouseJustDown(SIDE_BORDER, getRenderYForIndex(i), Gdx.graphics.getWidth() - SIDE_BORDER*2, BUTTON_HEIGHT)) {
                 button.click();
+                break; //MUST BREAK OR LOOP WILL THROW EXCEPTION
             }
 
             i++;
@@ -84,7 +104,7 @@ class FileTerminalScreen extends TerminalScreen {
     }
 
     private int getRenderYForIndex(int index) {
-        return terminal.getHeightOfTitle() - BUTTON_GAP - BUTTON_HEIGHT - (BUTTON_GAP+BUTTON_HEIGHT)*index;
+        return Gdx.graphics.getHeight() - terminal.getHeightOfTitle() - BUTTON_GAP - BUTTON_HEIGHT - (BUTTON_GAP+BUTTON_HEIGHT)*index;
     }
 
     @Override
@@ -106,20 +126,23 @@ class FileTerminalScreen extends TerminalScreen {
     public boolean keyDown(int keycode) {
         if (keycode == Input.Keys.DOWN || keycode == Input.Keys.S) {
             //Move down
-
-            //TODO: Implement
+            if (index < buttons.size()-1) {
+                index++;
+            }
 
             return true;
         } else if (keycode == Input.Keys.UP || keycode == Input.Keys.W) {
             //Move up
-
-            //TODO: Implement
+            if (index > 0) {
+                index--;
+            }
 
             return true;
         } else if (keycode == Input.Keys.SPACE || keycode == Input.Keys.ENTER) {
             //Select
-
-            //TODO: Implement selecting
+            if (index < buttons.size()) {
+                buttons.get(index).click();
+            }
 
             return true;
         } else if (keycode == Input.Keys.LEFT || keycode == Input.Keys.A) {

@@ -59,6 +59,6 @@ public class TerminalButton{
         } else {
             TerminalMain.mediumFont.setColor(Gui.text_color);
         }
-        TerminalMain.mediumFont.draw(batch, text, x + 10, y + height/2 + TerminalMain.mediumFont.getLineHeight()/2);
+        TerminalMain.mediumFont.draw(batch, text, x + 10, y + height/2 + TerminalMain.mediumFont.getCapHeight()/2);
     }
 }

@@ -30,7 +30,7 @@ public class TerminalMain extends ApplicationAdapter {
     private static final int MAX_GLOW = 30;
     private Color glowColor;
 
-    private FileTerminalScreen screen;
+    private TerminalScreen screen;
 
     static BitmapFont smallFont;
     static BitmapFont mediumFont;
@@ -79,17 +79,19 @@ public class TerminalMain extends ApplicationAdapter {
         //Start background audio
         startBackgroundAudio();
 
-        //TODO: REMOVE
-        screen = new FileTerminalScreen(this);
+        //TODO: REMOVE ------------
+        TerminalScreen screen = new FileTerminalScreen(this);
         TerminalFile dir = new TerminalFile(null, true, "home");
         TerminalFile dir2 = new TerminalFile(dir, true, "Test folder");
         new TerminalFile(dir, false, "Test file 2");
         new TerminalFile(dir, false, "Test file 3");
         new TerminalFile(dir2, false, "Second text file");
-
-        screen.setDirectory(dir);
-        Gdx.input.setInputProcessor(screen);
-        //------------
+        new TerminalFile(dir2, true, "Folder 3");
+        new TerminalFile(dir2, false, "ayy lmao");
+        new TerminalFile(dir, false, "test file test file test file test file test file test file test file test file test file test file test file test file test file test file test file test file test file test file test file test file test file test file test file ");
+        ((FileTerminalScreen)screen).setDirectory(dir);
+        openScreen(screen);
+        //TODO: REMOVE ------------
     }
 
     private void startBackgroundAudio() {
@@ -189,6 +191,15 @@ public class TerminalMain extends ApplicationAdapter {
 
     }
 
+    public void openScreen(TerminalScreen screen) {
+        if (this.screen != null) {
+            this.screen.closed();
+        }
+        this.screen = screen;
+        screen.opened();
+        Gdx.input.setInputProcessor(screen);
+    }
+
     private void act(float deltaTime) {
         updateGlow();
 
@@ -277,16 +288,17 @@ public class TerminalMain extends ApplicationAdapter {
         //Begin rendering
         Gui.begin(Gui.batch);
 
-        //TODO: STANDARD RENDERING OF ALL OTHER ACTORS
         screen.draw(Gui.batch);
 
         //Render title
-        if (drawTitle) {
+        if (screen == null || screen.drawTitle) {
             drawTitleText();
         }
 
         //Render splitter
-        drawSplitter();
+        if (screen == null || screen.drawTitleSplitter) {
+            drawSplitter();
+        }
 
         //Render scrolling light thing
         drawScrollingLightThing();
