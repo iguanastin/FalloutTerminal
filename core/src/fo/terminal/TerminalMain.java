@@ -110,6 +110,8 @@ public class TerminalMain extends ApplicationAdapter {
                 backgroundAudioC.play();
                 break;
         }
+
+        Gdx.app.log("Setup", "Started background audio. (A:" + backgroundAudioA.isPlaying() + ", B:" + backgroundAudioB.isPlaying() + ", C:"+ backgroundAudioC.isPlaying() + ")");
     }
 
     public void playButtonClick() {
@@ -146,11 +148,15 @@ public class TerminalMain extends ApplicationAdapter {
         buttonClickSound1 = Gdx.audio.newSound(Gdx.files.internal("audio/ui_hacking_charenter_01.wav"));
         buttonClickSound2 = Gdx.audio.newSound(Gdx.files.internal("audio/ui_hacking_charenter_02.wav"));
         buttonClickSound3 = Gdx.audio.newSound(Gdx.files.internal("audio/ui_hacking_charenter_03.wav"));
+
+        Gdx.app.log("Setup", "Loaded all audio files");
     }
 
     private void loadOverlayTextures() {
         vignette = new Texture(Gdx.files.internal("vignette.png"));
         noise = new Texture(Gdx.files.internal("noise.png"));
+
+        Gdx.app.log("Setup", "Loaded all overlay textures");
     }
 
     private void setGuiVariables() {
@@ -161,6 +167,8 @@ public class TerminalMain extends ApplicationAdapter {
         Gui.frame_color = Gui.alternate_color;
         Gui.has_border = false;
         Gui.border = 5;
+
+        Gdx.app.log("Setup", "Setup Gui variables");
     }
 
     private void generateFonts() {
@@ -180,18 +188,18 @@ public class TerminalMain extends ApplicationAdapter {
         largeFont.setColor(Gui.text_color);
 
         gen.dispose();
+
+        Gdx.app.log("Setup", "Generated fonts");
     }
 
     @Override
     public void resize(int width, int height) {
-//        Gui.setupRenderers();
-
         Matrix4 matrix = new Matrix4();
         matrix.setToOrtho2D(0, 0, width, height);
         Gui.batch.setProjectionMatrix(matrix);
         Gui.sr.setProjectionMatrix(matrix);
 
-
+        Gdx.app.log("Resize", "Resized window to " + width + "x" + height);
     }
 
     public void openScreen(TerminalScreen screen) {
@@ -199,8 +207,12 @@ public class TerminalMain extends ApplicationAdapter {
             this.screen.closed();
         }
         this.screen = screen;
-        screen.opened();
-        Gdx.input.setInputProcessor(screen);
+        if (screen != null) {
+            screen.opened();
+            Gdx.input.setInputProcessor(screen);
+        }
+
+        Gdx.app.log("ScreenChange", "Changed to TerminalScreen: " + screen);
     }
 
     private void act(float deltaTime) {
@@ -239,12 +251,12 @@ public class TerminalMain extends ApplicationAdapter {
             Gdx.graphics.setWindowedMode(LwjglApplicationConfiguration.getDesktopDisplayMode().width, LwjglApplicationConfiguration.getDesktopDisplayMode().height);
             lwjglFrame.setExtendedState(LwjglFrame.MAXIMIZED_BOTH);
         }
+
+        Gdx.app.log("Fullscreen", "Toggled fullscreen to: " + Gdx.graphics.isFullscreen());
     }
 
     @Override
     public void dispose() {
-        super.dispose();
-
         //Dispose renderers
         Gui.dispose();
 
@@ -257,18 +269,25 @@ public class TerminalMain extends ApplicationAdapter {
         //Dispose of audio
         disposeAudio();
 
-        System.out.println("Disposed of resources");
+        //Dispose GDX
+        super.dispose();
+
+        Gdx.app.log("Dispose", "Disposed of all resources");
     }
 
     private void disposeFonts() {
         smallFont.dispose();
         mediumFont.dispose();
         largeFont.dispose();
+
+        Gdx.app.log("Dispose", "Disposed of fonts");
     }
 
     private void disposeOverlayTextures() {
         vignette.dispose();
         noise.dispose();
+
+        Gdx.app.log("Dispose", "Disposed of overlay textures");
     }
 
     private void disposeAudio() {
@@ -280,6 +299,8 @@ public class TerminalMain extends ApplicationAdapter {
         buttonClickSound1.dispose();
         buttonClickSound2.dispose();
         buttonClickSound3.dispose();
+
+        Gdx.app.log("Dispose", "Disposed of audio");
     }
 
     @Override

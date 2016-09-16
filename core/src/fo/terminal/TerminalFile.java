@@ -63,4 +63,9 @@ class TerminalFile {
     public boolean isFile() {
         return !directory;
     }
+
+    @Override
+    public String toString() {
+        return getName();
+    }
 }
