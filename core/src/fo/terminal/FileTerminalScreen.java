@@ -3,6 +3,7 @@ package fo.terminal;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.g2d.Batch;
+import gui.Gui;
 
 import java.util.ArrayList;
 
@@ -15,7 +16,7 @@ class FileTerminalScreen extends TerminalScreen {
     private static final int BUTTON_GAP = 15;
     private static final int SIDE_BORDER = 100;
 
-    private TerminalFile folder;
+    private TerminalFile file;
 
     private ArrayList<TerminalButton> buttons;
     private int index = 0;
@@ -31,21 +32,19 @@ class FileTerminalScreen extends TerminalScreen {
         buttons = new ArrayList<TerminalButton>();
     }
 
-    FileTerminalScreen setDirectory(TerminalFile file) {
-        if (!file.isDirectory()) {
-            throw new TerminalFileException("Cannot open non-directory");
-        }
-
-        this.folder = file;
+    FileTerminalScreen setFile(TerminalFile file) {
+        this.file = file;
 
         index = 0;
 
-        generateButtons();
+        if (file.isDirectory()) {
+            generateDirectoryButtons();
+        }
 
         return this;
     }
 
-    private void generateButtons() {
+    private void generateDirectoryButtons() {
         buttons.clear();
 
         int availableSpace = Gdx.graphics.getHeight() - terminal.getHeightOfTitle() - BUTTON_GAP - BUTTON_HEIGHT;
@@ -55,36 +54,21 @@ class FileTerminalScreen extends TerminalScreen {
 
         index = 0;
 
-        for (TerminalFile file : folder.getChildren()) {
+        for (TerminalFile file : this.file.getChildren()) {
             TerminalButton button = new TerminalFileButton(file);
-            if (file.isDirectory()) {
-                button.setListener(new TerminalButtonListener() {
-                    @Override
-                    public void clicked(TerminalButton button) {
-                        setDirectory(((TerminalFileButton) button).getFile());
-                    }
-                });
-            } else {
-                button.setListener(new TerminalButtonListener() {
-                    @Override
-                    public void clicked(TerminalButton button) {
-                        //TODO: Implement file viewing
-                    }
-                });
-            }
+            button.setListener(new TerminalButtonListener() {
+                @Override
+                public void clicked(TerminalButton button) {
+                    setFile(((TerminalFileButton) button).getFile());
+                }
+            });
             buttons.add(button);
         }
     }
 
     @Override
     public void opened() {
-        generateButtons();
-    }
-
-    public void select(TerminalButton button) {
-        if (buttons.contains(button)) {
-            index = buttons.indexOf(button);
-        }
+        generateDirectoryButtons();
     }
 
     @Override
@@ -93,32 +77,34 @@ class FileTerminalScreen extends TerminalScreen {
     }
 
     private void handleMouseInput() {
-        int i = 0;
-        for (TerminalButton button : buttons) {
-            //Mouse over button
-            if (TerminalButton.isMouseOver(SIDE_BORDER, getRenderYForIndex(i), Gdx.graphics.getWidth() - SIDE_BORDER * 2, BUTTON_HEIGHT)) {
-                if (Gdx.input.getX() != lastMX || Gdx.input.getY() != lastMY) {
-                    lastMX = Gdx.input.getX();
-                    lastMY = Gdx.input.getY();
+        if (file != null && file.isDirectory()) {
+            int i = 0;
+            for (TerminalButton button : buttons) {
+                //Mouse over button
+                if (TerminalButton.isMouseOver(SIDE_BORDER, getRenderYForIndex(i), Gdx.graphics.getWidth() - SIDE_BORDER * 2, BUTTON_HEIGHT)) {
+                    if (Gdx.input.getX() != lastMX || Gdx.input.getY() != lastMY) {
+                        lastMX = Gdx.input.getX();
+                        lastMY = Gdx.input.getY();
 
-                    if (index != i) {
-                        terminal.playButtonClick();
+                        if (index != i) {
+                            terminal.playButtonClick();
+                        }
+
+                        index = i;
                     }
-
-                    index = i;
                 }
-            }
 
-            //Mouse down over button
-            if (TerminalButton.isMouseJustDown(SIDE_BORDER, getRenderYForIndex(i), Gdx.graphics.getWidth() - SIDE_BORDER * 2, BUTTON_HEIGHT)) {
-                if (index == i) {
-                    terminal.playButtonClick();
-                    button.click();
-                    break; //MUST BREAK OR LOOP WILL THROW EXCEPTION
+                //Mouse down over button
+                if (TerminalButton.isMouseJustDown(SIDE_BORDER, getRenderYForIndex(i), Gdx.graphics.getWidth() - SIDE_BORDER * 2, BUTTON_HEIGHT)) {
+                    if (index == i) {
+                        terminal.playButtonClick();
+                        button.click();
+                        break; //MUST BREAK OR LOOP WILL THROW EXCEPTION
+                    }
                 }
-            }
 
-            i++;
+                i++;
+            }
         }
     }
 
@@ -128,6 +114,23 @@ class FileTerminalScreen extends TerminalScreen {
 
     @Override
     public void draw(Batch batch) {
+        if (file != null) {
+            if (file.isDirectory()) {
+                drawDirectoryButtons(batch);
+            } else if (file.isFile()) {
+                Gui.begin(batch);
+                int height = Gdx.graphics.getHeight() - terminal.getHeightOfTitle() - 25;
+                String contents = (String)file.getContents();
+                if (contents == null) {
+                    contents = "[EMPTY]";
+                }
+                TerminalMain.mediumFont.setColor(Gui.text_color);
+                Gui.drawTextInArea(batch, TerminalMain.mediumFont, contents, SIDE_BORDER, height, Gdx.graphics.getWidth() - SIDE_BORDER * 2, height - SIDE_BORDER);
+            }
+        }
+    }
+
+    private void drawDirectoryButtons(Batch batch) {
         int i = 0;
         for (TerminalButton button : buttons) {
 

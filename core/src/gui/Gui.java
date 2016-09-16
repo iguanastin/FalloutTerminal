@@ -98,7 +98,7 @@ public abstract class Gui {
      * @param str String to check width of
      * @return Pixel width of the string
      */
-    public static float getStringPixelWidth(String str) {
+    public static float getStringPixelWidth(BitmapFont font, String str) {
         GLYPHS.setText(font, str);
         return GLYPHS.width;
     }
@@ -109,7 +109,7 @@ public abstract class Gui {
      * @param str String to check height of
      * @return Pixel height of the string
      */
-    public static float getStringPixelHeight(String str) {
+    public static float getStringPixelHeight(BitmapFont font, String str) {
         GLYPHS.setText(font, str);
         return GLYPHS.height;
     }
@@ -122,9 +122,9 @@ public abstract class Gui {
      * @param x Center x coordinate
      * @param y Center y coordinate
      */
-    public static void drawTextCenteredAt(Batch batch, String text, float x, float y) {
-        float width = getStringPixelWidth(text);
-        float height = getStringPixelHeight(text);
+    public static void drawTextCenteredAt(Batch batch, BitmapFont font, String text, float x, float y) {
+        float width = getStringPixelWidth(font, text);
+        float height = getStringPixelHeight(font, text);
         
         font.draw(batch, text, x - width/2, y + height/2);
     }
@@ -139,7 +139,7 @@ public abstract class Gui {
      * @param width Maximum width to allow drawing in
      * @return Remaining text that was not able to be drawn
      */
-    public static String drawTextInWidth(Batch batch, String text, float x, float y, float width) {
+    public static String drawTextInWidth(Batch batch, BitmapFont font, String text, float x, float y, float width) {
         String draw = text;
         String remaining = "";
         
@@ -148,7 +148,7 @@ public abstract class Gui {
             draw = draw.substring(0, draw.indexOf("\n"));
         }
         
-        while (getStringPixelWidth(draw) > width) {
+        while (getStringPixelWidth(font, draw) > width) {
             if (draw.contains(" ")) {
                 remaining = draw.substring(draw.lastIndexOf(" ")+1) + " " + remaining;
                 draw = draw.substring(0, draw.lastIndexOf(" "));
@@ -176,12 +176,11 @@ public abstract class Gui {
      * @param height Height of the region
      * @return Remaining text that had no room to be drawn on the screen
      */
-    public static String drawTextInArea(Batch batch, String text, float x, float y, float width, float height) {
-        float lineHeight = getStringPixelHeight(text.substring(0, 1)) + 5;
+    public static String drawTextInArea(Batch batch, BitmapFont font, String text, float x, float y, float width, float height) {
         String remaining = text;
         
-        for (int i = 0; i < Math.floor(height/lineHeight) && !remaining.isEmpty(); i++) {
-            remaining = drawTextInWidth(batch, remaining, x, y - lineHeight*i, width);
+        for (int i = 0; i < Math.floor(height/font.getLineHeight()) && !remaining.isEmpty(); i++) {
+            remaining = drawTextInWidth(batch, font, remaining, x, y - font.getLineHeight()*i, width);
         }
         
         return remaining;

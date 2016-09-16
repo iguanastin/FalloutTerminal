@@ -179,8 +179,8 @@ public class Slider extends Actor {
         Gui.begin(batch);
 
         //Draw text
-        Gui.font.draw(batch, text, getX() - Gui.getStringPixelWidth(text) - 5, getY() + getHeight()/2 + Gui.getStringPixelHeight(text)/2);
+        Gui.font.draw(batch, text, getX() - Gui.getStringPixelWidth(Gui.font, text) - 5, getY() + getHeight()/2 + Gui.getStringPixelHeight(Gui.font, text)/2);
         String valueText = "" + getValue();
-        Gui.font.draw(batch, valueText, getX() + getWidth() + 5, getY() + getHeight()/2 + Gui.getStringPixelHeight(valueText)/2);
+        Gui.font.draw(batch, valueText, getX() + getWidth() + 5, getY() + getHeight()/2 + Gui.getStringPixelHeight(Gui.font, valueText)/2);
     }
 }

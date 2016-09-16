@@ -16,6 +16,7 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Matrix4;
 import gui.Gui;
 
+import java.math.BigDecimal;
 import java.util.Random;
 
 public class TerminalMain extends ApplicationAdapter {
@@ -39,8 +40,6 @@ public class TerminalMain extends ApplicationAdapter {
     private Texture vignette;
     private Texture noise;
 
-    private boolean drawTitle = true;
-    private boolean drawSplitter = true;
     private boolean drawDebug = false;
 
     private LwjglFrame lwjglFrame;
@@ -83,13 +82,13 @@ public class TerminalMain extends ApplicationAdapter {
         TerminalScreen screen = new FileTerminalScreen(this);
         TerminalFile dir = new TerminalFile(null, true, "home");
         TerminalFile dir2 = new TerminalFile(dir, true, "Test folder");
-        new TerminalFile(dir, false, "Test file 2");
-        new TerminalFile(dir, false, "Test file 3");
-        new TerminalFile(dir2, false, "Second text file");
+        new TerminalFile(dir, false, "Test file 2").setContents("This is a test file");
+        new TerminalFile(dir, false, "Test file 3").setContents("This is another test file");
+        new TerminalFile(dir2, false, "Second text file").setContents("TESTESTESTSETSTSETSTSTSETSTTS AND TESTESTESTSETSTSETSTSTSETSTTS AND\n TESTESTESTSETSTSETSTSTSETSTTS \nAND TESTESTESTSETSTSETSTSTSETSTTS AND TESTESTESTSETSTSETSTSTSETSTTS AND TESTESTESTSETSTSETSTSTSETSTTS AND TESTESTESTSETSTSETSTSTSETSTTS AND TESTESTESTSETSTSETSTSTSETSTTS AND TESTESTESTSETSTSETSTSTSETSTTS AND TESTESTESTSETSTSETSTSTSETSTTS AND TESTESTESTSETSTSETSTSTSETSTTS AND TESTESTESTSETSTSETSTSTSETSTTS AND ");
         new TerminalFile(dir2, true, "Folder 3");
         new TerminalFile(dir2, false, "ayy lmao");
         new TerminalFile(dir, false, "test file test file test file test file test file test file test file test file test file test file test file test file test file test file test file test file test file test file test file test file test file test file test file ");
-        ((FileTerminalScreen)screen).setDirectory(dir);
+        ((FileTerminalScreen) screen).setFile(dir);
         openScreen(screen);
         //TODO: REMOVE ------------
     }
@@ -168,7 +167,7 @@ public class TerminalMain extends ApplicationAdapter {
         FreeTypeFontGenerator gen = new FreeTypeFontGenerator(Gdx.files.internal("monofont.ttf"));
         FreeTypeFontGenerator.FreeTypeFontParameter param = new FreeTypeFontGenerator.FreeTypeFontParameter();
 
-        param.size = 12;
+        param.size = 18;
         param.kerning = false;
         smallFont = gen.generateFont(param);
         param.size = 24;
@@ -257,6 +256,8 @@ public class TerminalMain extends ApplicationAdapter {
 
         //Dispose of audio
         disposeAudio();
+
+        System.out.println("Disposed of resources");
     }
 
     private void disposeFonts() {
@@ -333,22 +334,28 @@ public class TerminalMain extends ApplicationAdapter {
 
     private void drawDebug() {
         Gui.begin(Gui.batch);
-        String str = Gdx.graphics.getFramesPerSecond() + "";
-        Gui.font.draw(Gui.batch, str, 5, Gdx.graphics.getHeight() - 5);
-        long usedMB = (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) / 1024 / 1024;
-        Gui.font.draw(Gui.batch, usedMB + "MB", 5, Gdx.graphics.getHeight() - 5 - Gui.font.getLineHeight());
+
+        //Draw framerate
+        String fpsStr = "FPS: " + Gdx.graphics.getFramesPerSecond();
+        Gui.drawTextInWidth(Gui.batch, smallFont, fpsStr, 5, Gdx.graphics.getHeight() - 8, 200);
+
+        //Draw used memory
+        float usedMB = (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) / 1024.0f / 1024.0f;
+        Gui.drawTextInWidth(Gui.batch, smallFont, "Used: " + BigDecimal.valueOf(usedMB).setScale(2, BigDecimal.ROUND_HALF_UP).floatValue() + "MB", 5, Gdx.graphics.getHeight() - 8 - Gui.font.getLineHeight(), 200);
+
+        //Draw total memory
+        float totalMB = Runtime.getRuntime().totalMemory() / 1024.0f / 1024.0f;
+        Gui.drawTextInWidth(Gui.batch, smallFont, "Total: " + BigDecimal.valueOf(totalMB).setScale(2, BigDecimal.ROUND_HALF_UP).floatValue() + "MB", 5, Gdx.graphics.getHeight() - 8 - Gui.font.getLineHeight()*2, 200);
     }
 
     private void drawSplitter() {
-        if (drawSplitter) {
-            Gui.end(Gui.batch);
-            Gui.begin(Gui.sr, ShapeRenderer.ShapeType.Filled, Gui.trim_color);
+        Gui.end(Gui.batch);
+        Gui.begin(Gui.sr, ShapeRenderer.ShapeType.Filled, Gui.trim_color);
 
-            int splitterY = Gdx.graphics.getHeight() - getHeightOfTitle();
-            Gui.sr.rect(TITLE_DISTANCE_FROM_TOP, splitterY, Gdx.graphics.getWidth() - TITLE_DISTANCE_FROM_TOP * 2, 5);
+        int splitterY = Gdx.graphics.getHeight() - getHeightOfTitle();
+        Gui.sr.rect(TITLE_DISTANCE_FROM_TOP, splitterY, Gdx.graphics.getWidth() - TITLE_DISTANCE_FROM_TOP * 2, 5);
 
-            Gui.end(Gui.sr);
-        }
+        Gui.end(Gui.sr);
     }
 
     private void drawGlow() {

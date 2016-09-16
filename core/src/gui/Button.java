@@ -68,7 +68,7 @@ public class Button extends Actor {
         //Begin batch
         Gui.begin(batch);
         //Draw button text
-        Gui.drawTextCenteredAt(Gui.batch, text, getX() + getWidth()/2, getY() + getHeight()/2);
+        Gui.drawTextCenteredAt(Gui.batch, Gui.font, text, getX() + getWidth()/2, getY() + getHeight()/2);
     }
     
 }
