@@ -27,13 +27,9 @@ abstract class TerminalScreen implements InputProcessor {
 
     }
 
-    public void closed() {
+    public void closed() {}
 
-    }
-
-    public void resized(int width, int height) {
-
-    }
+    public void resized(int width, int height) {}
 
     @Override
     public boolean keyDown(int keycode) {

@@ -1,7 +1,7 @@
 package gui;
 
 /**
- * Created by Austin on 9/10/2016.
+ * @author austinbt
  */
 public interface SliderListener {
     void sliderDragged(Slider slider, int value);

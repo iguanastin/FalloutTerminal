@@ -412,7 +412,7 @@ public class TerminalMain extends ApplicationAdapter {
     }
 
     /**
-     * Loads all overlay textures used by tihs application.
+     * Loads all overlay textures used by this application.
      *
      * Automatically called by create() when the application is launched
      *
@@ -480,10 +480,7 @@ public class TerminalMain extends ApplicationAdapter {
      */
     @Override
     public void resize(int width, int height) {
-        Matrix4 matrix = new Matrix4();
-        matrix.setToOrtho2D(0, 0, width, height);
-        Gui.batch.setProjectionMatrix(matrix);
-        Gui.sr.setProjectionMatrix(matrix);
+        Gui.resizeRenderers(width, height);
 
         Gdx.app.log("Resize", "(" + getRunTime() + ") Resized window to " + width + "x" + height);
     }

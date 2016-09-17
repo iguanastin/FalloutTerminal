@@ -219,7 +219,7 @@ public abstract class Gui {
      * @param maxHeight Maximum allowed height of the image
      * @return A scalar float (0f, 1f]
      */
-    public static float getImageScalerToFit(Texture texture, int maxWidth, int maxHeight) {
+    public static float getImageScalarToFit(Texture texture, int maxWidth, int maxHeight) {
         float scale = 1;
         
         if (texture.getWidth() <= maxWidth && texture.getHeight() <= maxHeight) {
