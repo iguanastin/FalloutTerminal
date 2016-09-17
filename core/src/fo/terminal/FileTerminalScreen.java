@@ -91,7 +91,7 @@ class FileTerminalScreen extends TerminalScreen {
                         lastMY = Gdx.input.getY();
 
                         if (index != i) {
-                            terminal.playButtonClick();
+                            terminal.playMenuSelect();
                         }
 
                         index = i;
@@ -163,7 +163,10 @@ class FileTerminalScreen extends TerminalScreen {
 
     private boolean handleFileKeyDown(int keycode) {
         if (keycode == Input.Keys.ESCAPE || keycode == Input.Keys.BACKSPACE) {
-            setFile(file.getParent());
+            if (file.getParent() != null) {
+                setFile(file.getParent());
+                terminal.playMenuCancel();
+            }
             return true;
         }
 
@@ -175,7 +178,7 @@ class FileTerminalScreen extends TerminalScreen {
             //Move down
             if (index < buttons.size() - 1) {
                 index++;
-                terminal.playButtonClick();
+                terminal.playMenuSelect();
             }
 
             return true;
@@ -183,7 +186,7 @@ class FileTerminalScreen extends TerminalScreen {
             //Move up
             if (index > 0) {
                 index--;
-                terminal.playButtonClick();
+                terminal.playMenuSelect();
             }
 
             return true;
@@ -209,7 +212,10 @@ class FileTerminalScreen extends TerminalScreen {
             return true;
         } else if (keycode == Input.Keys.ESCAPE || keycode == Input.Keys.BACKSPACE) {
             //Go back
-            setFile(file.getParent());
+            if (file.getParent() != null) {
+                terminal.playMenuCancel();
+                setFile(file.getParent());
+            }
 
             return true;
         }

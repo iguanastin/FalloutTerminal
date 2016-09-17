@@ -101,18 +101,18 @@ public class TerminalMain extends ApplicationAdapter {
     private LwjglFrame lwjglFrame;
 
 
+    private Music backgroundAudioA, backgroundAudioB, backgroundAudioC;
+    private Sound buttonClickSound1, buttonClickSound2, buttonClickSound3;
+    private Sound menuCancelSound;
+    private Sound menuSelectSound;
+    private Sound charScrollSound;
+    private Sound charSingleSound1, charSingleSound2, charSingleSound3, charSingleSound4, charSingleSound5, charSingleSound6;
+    private Sound passGoodSound, passBadSound;
+    private Sound charMultipleSound1, charMultipleSound2, charMultipleSound3, charMultipleSound4;
     /**
      * Whether or not any audio will be played
      */
     private boolean playAudio = true;
-    /**
-     * Background music objects
-     */
-    private Music backgroundAudioA, backgroundAudioB, backgroundAudioC;
-    /**
-     * Button click sound effect objects
-     */
-    private Sound buttonClickSound1, buttonClickSound2, buttonClickSound3;
     /**
      * Scalar value of the volume of background music [0f, 1f]
      */
@@ -276,6 +276,94 @@ public class TerminalMain extends ApplicationAdapter {
         }
     }
 
+    public void playMenuCancel() {
+        if (!playAudio) {
+            return;
+        }
+
+        menuCancelSound.play(soundFXVolume);
+    }
+
+    public void playMenuSelect() {
+        if (!playAudio) {
+            return;
+        }
+
+        menuSelectSound.play(soundFXVolume);
+    }
+
+    public void playCharScroll() {
+        if (!playAudio) {
+            return;
+        }
+
+        charScrollSound.play(soundFXVolume);
+    }
+
+    public void playCharSingle() {
+        if (!playAudio) {
+            return;
+        }
+
+        switch (new Random().nextInt(6)) {
+            case 0:
+                charSingleSound1.play(soundFXVolume);
+                break;
+            case 1:
+                charSingleSound2.play(soundFXVolume);
+                break;
+            case 2:
+                charSingleSound3.play(soundFXVolume);
+                break;
+            case 3:
+                charSingleSound4.play(soundFXVolume);
+                break;
+            case 4:
+                charSingleSound5.play(soundFXVolume);
+                break;
+            case 5:
+                charSingleSound6.play(soundFXVolume);
+                break;
+        }
+    }
+
+    public void playPassGood() {
+        if (!playAudio) {
+            return;
+        }
+
+        passGoodSound.play(soundFXVolume);
+    }
+
+    public void playPassBad() {
+        if (!playAudio) {
+            return;
+        }
+
+        passBadSound.play(soundFXVolume);
+    }
+
+    public void playCharMultiple() {
+        if (!playAudio) {
+            return;
+        }
+
+        switch (new Random().nextInt(4)) {
+            case 0:
+                charMultipleSound1.play(soundFXVolume);
+                break;
+            case 1:
+                charMultipleSound2.play(soundFXVolume);
+                break;
+            case 2:
+                charMultipleSound3.play(soundFXVolume);
+                break;
+            case 3:
+                charMultipleSound4.play(soundFXVolume);
+                break;
+        }
+    }
+
     /**
      * Loads all audio files required for this application.
      *
@@ -299,6 +387,26 @@ public class TerminalMain extends ApplicationAdapter {
         buttonClickSound1 = Gdx.audio.newSound(Gdx.files.internal("audio/ui_hacking_charenter_01.wav"));
         buttonClickSound2 = Gdx.audio.newSound(Gdx.files.internal("audio/ui_hacking_charenter_02.wav"));
         buttonClickSound3 = Gdx.audio.newSound(Gdx.files.internal("audio/ui_hacking_charenter_03.wav"));
+
+        menuCancelSound = Gdx.audio.newSound(Gdx.files.internal("audio/ui_menu_cancel.wav"));
+        menuSelectSound = Gdx.audio.newSound(Gdx.files.internal("audio/ui_menu_focus.wav"));
+
+        charScrollSound = Gdx.audio.newSound(Gdx.files.internal("audio/ui_hacking_charscroll.wav"));
+
+        charSingleSound1 = Gdx.audio.newSound(Gdx.files.internal("audio/ui_hacking_charsingle_01.wav"));
+        charSingleSound2 = Gdx.audio.newSound(Gdx.files.internal("audio/ui_hacking_charsingle_02.wav"));
+        charSingleSound3 = Gdx.audio.newSound(Gdx.files.internal("audio/ui_hacking_charsingle_03.wav"));
+        charSingleSound4 = Gdx.audio.newSound(Gdx.files.internal("audio/ui_hacking_charsingle_04.wav"));
+        charSingleSound5 = Gdx.audio.newSound(Gdx.files.internal("audio/ui_hacking_charsingle_05.wav"));
+        charSingleSound6 = Gdx.audio.newSound(Gdx.files.internal("audio/ui_hacking_charsingle_06.wav"));
+
+        passGoodSound = Gdx.audio.newSound(Gdx.files.internal("audio/ui_hacking_passgood.wav"));
+        passBadSound = Gdx.audio.newSound(Gdx.files.internal("audio/ui_hacking_passbad.wav"));
+
+        charMultipleSound1 = Gdx.audio.newSound(Gdx.files.internal("audio/ui_hacking_charmultiple_01.wav"));
+        charMultipleSound2 = Gdx.audio.newSound(Gdx.files.internal("audio/ui_hacking_charmultiple_02.wav"));
+        charMultipleSound3 = Gdx.audio.newSound(Gdx.files.internal("audio/ui_hacking_charmultiple_03.wav"));
+        charMultipleSound4 = Gdx.audio.newSound(Gdx.files.internal("audio/ui_hacking_charmultiple_04.wav"));
 
         Gdx.app.log("Setup", "(" + getRunTime() + ") Loaded all audio files");
     }
@@ -511,6 +619,26 @@ public class TerminalMain extends ApplicationAdapter {
         buttonClickSound1.dispose();
         buttonClickSound2.dispose();
         buttonClickSound3.dispose();
+
+        menuCancelSound.dispose();
+        menuSelectSound.dispose();
+
+        charScrollSound.dispose();
+
+        charSingleSound1.dispose();
+        charSingleSound2.dispose();
+        charSingleSound3.dispose();
+        charSingleSound4.dispose();
+        charSingleSound5.dispose();
+        charSingleSound6.dispose();
+
+        passGoodSound.dispose();
+        passBadSound.dispose();
+
+        charMultipleSound1.dispose();
+        charMultipleSound2.dispose();
+        charMultipleSound3.dispose();
+        charMultipleSound4.dispose();
 
         Gdx.app.log("Dispose", "(" + getRunTime() + ") Disposed of audio");
     }
