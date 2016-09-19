@@ -3,10 +3,16 @@ package fot.actions;
 /**
  * @author austinbt
  */
-public interface ScreenActionListener {
-    void actionCompleted();
+public abstract class ScreenActionListener {
+    public void actionCompleted() {
 
-    void actionStarted();
+    }
 
-    void actionUpdated();
+    public void actionStarted() {
+
+    }
+
+    public void actionUpdated() {
+
+    }
 }
