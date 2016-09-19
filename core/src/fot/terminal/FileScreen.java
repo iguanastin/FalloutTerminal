@@ -1,4 +1,4 @@
-package fo.terminal;
+package fot.terminal;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
@@ -10,7 +10,7 @@ import java.util.ArrayList;
 /**
  * @author austinbt
  */
-class FileTerminalScreen extends TerminalScreen {
+class FileScreen extends TerminalScreen {
 
     private static final int BUTTON_HEIGHT = 40;
     private static final int BUTTON_GAP = 15;
@@ -18,21 +18,21 @@ class FileTerminalScreen extends TerminalScreen {
 
     private TerminalFile file;
 
-    private ArrayList<TerminalButton> buttons;
+    private ArrayList<ScreenButton> buttons;
     private int index = 0;
 
     private int lastMX = 0;
     private int lastMY = 0;
 
-    FileTerminalScreen(TerminalMain terminal) {
+    FileScreen(TerminalMain terminal) {
         super(terminal);
         drawTitle = true;
         drawTitleSplitter = true;
 
-        buttons = new ArrayList<TerminalButton>();
+        buttons = new ArrayList<ScreenButton>();
     }
 
-    public FileTerminalScreen setFile(TerminalFile file) {
+    public FileScreen setFile(TerminalFile file) {
         this.file = file;
 
         index = 0;
@@ -57,11 +57,11 @@ class FileTerminalScreen extends TerminalScreen {
         index = 0;
 
         for (TerminalFile file : this.file.getChildren()) {
-            TerminalButton button = new TerminalFileButton(file);
-            button.setListener(new TerminalButtonListener() {
+            ScreenButton button = new ScreenFileButton(file);
+            button.setListener(new ScreenButtonListener() {
                 @Override
-                public void clicked(TerminalButton button) {
-                    setFile(((TerminalFileButton) button).getFile());
+                public void clicked(ScreenButton button) {
+                    setFile(((ScreenFileButton) button).getFile());
                 }
             });
             buttons.add(button);
@@ -83,9 +83,9 @@ class FileTerminalScreen extends TerminalScreen {
     private void handleMouseInput() {
         if (file != null && file.isDirectory()) {
             int i = 0;
-            for (TerminalButton button : buttons) {
+            for (ScreenButton button : buttons) {
                 //Mouse over button
-                if (TerminalButton.isMouseOver(SIDE_BORDER, getRenderYForIndex(i), Gdx.graphics.getWidth() - SIDE_BORDER * 2, BUTTON_HEIGHT)) {
+                if (ScreenButton.isMouseOver(SIDE_BORDER, getRenderYForIndex(i), Gdx.graphics.getWidth() - SIDE_BORDER * 2, BUTTON_HEIGHT)) {
                     if (Gdx.input.getX() != lastMX || Gdx.input.getY() != lastMY) {
                         lastMX = Gdx.input.getX();
                         lastMY = Gdx.input.getY();
@@ -99,7 +99,7 @@ class FileTerminalScreen extends TerminalScreen {
                 }
 
                 //Mouse down over button
-                if (TerminalButton.isMouseJustDown(SIDE_BORDER, getRenderYForIndex(i), Gdx.graphics.getWidth() - SIDE_BORDER * 2, BUTTON_HEIGHT)) {
+                if (ScreenButton.isMouseJustDown(SIDE_BORDER, getRenderYForIndex(i), Gdx.graphics.getWidth() - SIDE_BORDER * 2, BUTTON_HEIGHT)) {
                     if (index == i) {
                         terminal.playButtonClick();
                         button.click();
@@ -136,7 +136,7 @@ class FileTerminalScreen extends TerminalScreen {
 
     private void drawDirectoryButtons(Batch batch) {
         int i = 0;
-        for (TerminalButton button : buttons) {
+        for (ScreenButton button : buttons) {
 
             boolean selected = false;
             if (i == index) {

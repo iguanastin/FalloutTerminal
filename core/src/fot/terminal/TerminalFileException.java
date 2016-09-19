@@ -1,4 +1,4 @@
-package fo.terminal;
+package fot.terminal;
 
 /**
  * @author austinbt

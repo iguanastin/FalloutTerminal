@@ -1,7 +1,10 @@
-package fo.terminal;
+package fot.terminal;
 
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.graphics.g2d.Batch;
+import fot.actions.ScreenAction;
+
+import java.util.ArrayList;
 
 /**
  * @author austinbt
@@ -13,14 +16,45 @@ abstract class TerminalScreen implements InputProcessor {
     boolean drawTitleSplitter = false;
     protected TerminalMain terminal;
 
+    private ArrayList<ScreenAction> actions = new ArrayList<ScreenAction>();
+
     public TerminalScreen(TerminalMain terminal) {
         this.terminal = terminal;
     }
 
     public abstract void draw(Batch batch);
 
-    public void act() {
+    public final void superAct() {
+        updateActions();
+        act();
+    }
 
+    protected void act() {
+
+    }
+
+    public final void updateActions() {
+        ArrayList<ScreenAction> toRemove = new ArrayList<ScreenAction>();
+
+        for (ScreenAction action : actions) {
+            if (action.isCompleted()) {
+                toRemove.add(action);
+            } else if (action.isRunning()) {
+                action.update();
+            }
+        }
+
+        actions.removeAll(toRemove);
+    }
+
+    public final void clearActions() {
+        actions.clear();
+    }
+
+    public final void addAction(ScreenAction action) {
+        if (!actions.contains(action)) {
+            actions.add(action);
+        }
     }
 
     public void opened() {

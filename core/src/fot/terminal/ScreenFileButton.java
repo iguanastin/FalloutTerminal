@@ -1,12 +1,12 @@
-package fo.terminal;
+package fot.terminal;
 
 /**
  * @author austinbt
  */
-public class TerminalFileButton extends TerminalButton {
+public class ScreenFileButton extends ScreenButton {
     private TerminalFile file;
 
-    public TerminalFileButton(TerminalFile file) {
+    public ScreenFileButton(TerminalFile file) {
         super(file.getName());
         this.file = file;
     }

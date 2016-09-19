@@ -1,4 +1,4 @@
-package fo.terminal;
+package fot.terminal;
 
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
@@ -13,7 +13,6 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
-import com.badlogic.gdx.math.Matrix4;
 import gui.Gui;
 
 import java.math.BigDecimal;
@@ -172,16 +171,19 @@ public class TerminalMain extends ApplicationAdapter {
         startBackgroundAudio();
 
         //TODO: REMOVE ------------
-        TerminalScreen screen = new FileTerminalScreen(this);
-        TerminalFile dir = new TerminalFile(null, true, "home");
-        TerminalFile dir2 = new TerminalFile(dir, true, "Test folder");
-        new TerminalFile(dir, false, "Test file 2").setContents("This is a test file");
-        new TerminalFile(dir, false, "Test file 3").setContents("This is another test file");
-        new TerminalFile(dir2, false, "Second text file").setContents("TESTESTESTSETSTSETSTSTSETSTTS AND TESTESTESTSETSTSETSTSTSETSTTS AND\n TESTESTESTSETSTSETSTSTSETSTTS \nAND TESTESTESTSETSTSETSTSTSETSTTS AND TESTESTESTSETSTSETSTSTSETSTTS AND TESTESTESTSETSTSETSTSTSETSTTS AND TESTESTESTSETSTSETSTSTSETSTTS AND TESTESTESTSETSTSETSTSTSETSTTS AND TESTESTESTSETSTSETSTSTSETSTTS AND TESTESTESTSETSTSETSTSTSETSTTS AND TESTESTESTSETSTSETSTSTSETSTTS AND TESTESTESTSETSTSETSTSTSETSTTS AND ");
-        new TerminalFile(dir2, true, "Folder 3");
-        new TerminalFile(dir2, false, "ayy lmao");
-        new TerminalFile(dir, false, "test file test file test file test file test file test file test file test file test file test file test file test file test file test file test file test file test file test file test file test file test file test file test file ");
-        ((FileTerminalScreen) screen).setFile(dir);
+//        TerminalScreen screen = new FileScreen(this);
+//        TerminalFile dir = new TerminalFile(null, true, "home");
+//        TerminalFile dir2 = new TerminalFile(dir, true, "Test folder");
+//        new TerminalFile(dir, false, "Test file 2").setContents("This is a test file");
+//        new TerminalFile(dir, false, "Test file 3").setContents("This is another test file");
+//        new TerminalFile(dir2, false, "Second text file").setContents("TESTESTESTSETSTSETSTSTSETSTTS AND TESTESTESTSETSTSETSTSTSETSTTS AND\n TESTESTESTSETSTSETSTSTSETSTTS \nAND TESTESTESTSETSTSETSTSTSETSTTS AND TESTESTESTSETSTSETSTSTSETSTTS AND TESTESTESTSETSTSETSTSTSETSTTS AND TESTESTESTSETSTSETSTSTSETSTTS AND TESTESTESTSETSTSETSTSTSETSTTS AND TESTESTESTSETSTSETSTSTSETSTTS AND TESTESTESTSETSTSETSTSTSETSTTS AND TESTESTESTSETSTSETSTSTSETSTTS AND TESTESTESTSETSTSETSTSTSETSTTS AND ");
+//        new TerminalFile(dir2, true, "Folder 3");
+//        new TerminalFile(dir2, false, "ayy lmao");
+//        new TerminalFile(dir, false, "test file test file test file test file test file test file test file test file test file test file test file test file test file test file test file test file test file test file test file test file test file test file test file ");
+//        ((FileScreen) screen).setFile(dir);
+//        openScreen(screen);
+
+        TerminalScreen screen = new HackScreen(this);
         openScreen(screen);
         //TODO: REMOVE ------------
 
@@ -508,13 +510,13 @@ public class TerminalMain extends ApplicationAdapter {
      *
      * Called from render() before any rendering has happened.
      *
-     * @param deltaTime Time in seconds since last call to act
+     * @param deltaTime Time in seconds since last call to acted
      */
     private void act(float deltaTime) {
         updateKeyboardInput();
 
         if (screen != null) {
-            screen.act();
+            screen.superAct();
         }
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.F3)) {
@@ -643,7 +645,7 @@ public class TerminalMain extends ApplicationAdapter {
     /**
      * Central game loop. Called by application window to update this game and render it.
      *
-     * act(float) is called before any rendering occurs.
+     * acted(float) is called before any rendering occurs.
      *
      * Renders everything.
      *

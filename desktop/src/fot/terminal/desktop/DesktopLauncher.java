@@ -1,9 +1,9 @@
-package fo.terminal.desktop;
+package fot.terminal.desktop;
 
 import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
 import com.badlogic.gdx.backends.lwjgl.LwjglFrame;
 import com.badlogic.gdx.graphics.Color;
-import fo.terminal.TerminalMain;
+import fot.terminal.TerminalMain;
 
 public class DesktopLauncher {
     public static void main(String[] arg) {

@@ -1,4 +1,4 @@
-package fo.terminal;
+package fot.terminal;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.Batch;
@@ -8,16 +8,16 @@ import gui.Gui;
 /**
  * @author austinbt
  */
-public class TerminalButton{
+public class ScreenButton {
 
-    private TerminalButtonListener listener;
+    private ScreenButtonListener listener;
     private String text;
 
-    public TerminalButton(String text) {
+    public ScreenButton(String text) {
         this.text = text;
     }
 
-    public void setListener(TerminalButtonListener listener) {
+    public void setListener(ScreenButtonListener listener) {
         this.listener = listener;
     }
 
