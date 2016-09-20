@@ -120,7 +120,7 @@ public class FileScreen extends TerminalScreen {
                 drawDirectoryButtons(batch);
             } else if (file.isFile()) {
                 Gui.begin(batch);
-                int height = Gdx.graphics.getHeight() - terminal.getHeightOfTitle() - 25;
+                int height = Gdx.graphics.getHeight() - terminal.getHeightOfTitle() - 25 - Gui.stutter;
                 String contents = (String)file.getContents();
                 if (contents == null) {
                     contents = "[EMPTY]";
@@ -139,7 +139,7 @@ public class FileScreen extends TerminalScreen {
             if (i == index) {
                 selected = true;
             }
-            button.draw(batch, SIDE_BORDER, getRenderYForIndex(i), Gdx.graphics.getWidth() - SIDE_BORDER * 2, BUTTON_HEIGHT, selected);
+            button.draw(batch, SIDE_BORDER, getRenderYForIndex(i) - Gui.stutter, Gdx.graphics.getWidth() - SIDE_BORDER * 2, BUTTON_HEIGHT, selected);
 
             i++;
         }

@@ -526,10 +526,15 @@ public class TerminalMain extends ApplicationAdapter {
             drawDebug = !drawDebug;
         }
 
+        //Update stutter
+        updateStutter();
+    }
+
+    private void updateStutter() {
         stutterTimer--;
         if (stutterTimer <= 0) {
             stutterTimer = (int)(Math.random()*STUTTER_TIME);
-            Gui.stutter = 2 + (int)(Math.random()*4);
+            Gui.stutter = (int)(Math.random()*6);
         } else if (Gui.stutter != 0) {
             Gui.stutter = 0;
         }
@@ -739,7 +744,7 @@ public class TerminalMain extends ApplicationAdapter {
         Gui.begin(Gui.sr, ShapeRenderer.ShapeType.Filled, Gui.trim_color);
 
         int splitterY = Gdx.graphics.getHeight() - getHeightOfTitle();
-        Gui.sr.rect(TITLE_DISTANCE_FROM_TOP, splitterY, Gdx.graphics.getWidth() - TITLE_DISTANCE_FROM_TOP * 2, 5);
+        Gui.sr.rect(TITLE_DISTANCE_FROM_TOP, splitterY - Gui.stutter, Gdx.graphics.getWidth() - TITLE_DISTANCE_FROM_TOP * 2, 5);
 
         Gui.end(Gui.sr);
     }
@@ -782,11 +787,11 @@ public class TerminalMain extends ApplicationAdapter {
         largeFont.setColor(Gui.text_color);
 
         Gui.GLYPHS.setText(largeFont, topLine);
-        largeFont.draw(Gui.batch, topLine, Gdx.graphics.getWidth() / 2 - Gui.GLYPHS.width / 2, Gdx.graphics.getHeight() - TITLE_DISTANCE_FROM_TOP);
+        largeFont.draw(Gui.batch, topLine, Gdx.graphics.getWidth() / 2 - Gui.GLYPHS.width / 2, Gdx.graphics.getHeight() - TITLE_DISTANCE_FROM_TOP - Gui.stutter);
         Gui.GLYPHS.setText(largeFont, middleLine);
-        largeFont.draw(Gui.batch, middleLine, Gdx.graphics.getWidth() / 2 - Gui.GLYPHS.width / 2, Gdx.graphics.getHeight() - TITLE_DISTANCE_FROM_TOP - largeFont.getLineHeight());
+        largeFont.draw(Gui.batch, middleLine, Gdx.graphics.getWidth() / 2 - Gui.GLYPHS.width / 2, Gdx.graphics.getHeight() - TITLE_DISTANCE_FROM_TOP - largeFont.getLineHeight() - Gui.stutter);
         Gui.GLYPHS.setText(largeFont, bottomLine);
-        largeFont.draw(Gui.batch, bottomLine, Gdx.graphics.getWidth() / 2 - Gui.GLYPHS.width / 2, Gdx.graphics.getHeight() - TITLE_DISTANCE_FROM_TOP - largeFont.getLineHeight() * 2);
+        largeFont.draw(Gui.batch, bottomLine, Gdx.graphics.getWidth() / 2 - Gui.GLYPHS.width / 2, Gdx.graphics.getHeight() - TITLE_DISTANCE_FROM_TOP - largeFont.getLineHeight() * 2 - Gui.stutter);
     }
 
     /**
@@ -817,7 +822,7 @@ public class TerminalMain extends ApplicationAdapter {
             pollingLightColor.a = (128 - i) / 255f;
             Gui.sr.setColor(pollingLightColor);
 
-            Gui.sr.line(0, pollingLightPos + i, Gdx.graphics.getWidth(), pollingLightPos + i);
+            Gui.sr.line(0, pollingLightPos + i - Gui.stutter, Gdx.graphics.getWidth(), pollingLightPos + i - Gui.stutter);
         }
         pollingLightPos -= 3;
         if (pollingLightPos < -Gdx.graphics.getHeight()) {

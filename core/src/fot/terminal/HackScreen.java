@@ -121,30 +121,31 @@ public class HackScreen extends TerminalScreen {
         //Draw first line
         if (drawFirstLine) {
             if (!firstLineCounter.isCompleted()) {
-                font.draw(batch, firstLine.substring(0, firstLineCounter.getCount()), EDGE_GAP, Gdx.graphics.getHeight() - EDGE_GAP);
+                font.draw(batch, firstLine.substring(0, firstLineCounter.getCount()), EDGE_GAP, Gdx.graphics.getHeight() - EDGE_GAP - Gui.stutter);
             } else {
-                font.draw(batch, firstLine, EDGE_GAP, Gdx.graphics.getHeight() - EDGE_GAP);
+                font.draw(batch, firstLine, EDGE_GAP, Gdx.graphics.getHeight() - EDGE_GAP - Gui.stutter);
             }
         }
 
         //Draw second line
         if (drawSecondLine) {
             if (!secondLineCounter.isCompleted()) {
-                font.draw(batch, secondLine.substring(0, secondLineCounter.getCount()), EDGE_GAP, Gdx.graphics.getHeight() - EDGE_GAP - font.getLineHeight());
+                font.draw(batch, secondLine.substring(0, secondLineCounter.getCount()), EDGE_GAP, Gdx.graphics.getHeight() - EDGE_GAP - font.getLineHeight() - Gui.stutter);
             } else {
-                font.draw(batch, secondLine, EDGE_GAP, Gdx.graphics.getHeight() - EDGE_GAP - font.getLineHeight());
+                font.draw(batch, secondLine, EDGE_GAP, Gdx.graphics.getHeight() - EDGE_GAP - font.getLineHeight() - Gui.stutter);
             }
         }
 
         //Draw attempts line
         if (drawAttemptsLine) {
-            font.draw(batch, attempts + attemptsLine, EDGE_GAP, Gdx.graphics.getHeight() - EDGE_GAP - font.getLineHeight() * 3);
+            font.draw(batch, attempts + attemptsLine, EDGE_GAP, Gdx.graphics.getHeight() - EDGE_GAP - font.getLineHeight() * 3 - Gui.stutter);
 
             Gui.end(batch);
             Gui.begin(Gui.sr, ShapeRenderer.ShapeType.Filled, Gui.trim_color);
 
+            //Draw attempt squares
             for (int i = 0; i < attempts; i++) {
-                Gui.sr.rect(EDGE_GAP + Gui.getStringPixelWidth(font, attempts + attemptsLine) + (font.getLineHeight() + 10)*(i), Gdx.graphics.getHeight() - EDGE_GAP - font.getLineHeight()*4 + 5, font.getLineHeight(), font.getLineHeight());
+                Gui.sr.rect(EDGE_GAP + Gui.getStringPixelWidth(font, attempts + attemptsLine) + (font.getLineHeight() + 10)*(i), Gdx.graphics.getHeight() - EDGE_GAP - font.getLineHeight()*4 + 5 - Gui.stutter, font.getLineHeight(), font.getLineHeight());
             }
 
             Gui.end(Gui.sr);
@@ -155,9 +156,9 @@ public class HackScreen extends TerminalScreen {
         if (drawHexLines) {
             for (int i = 0; i < hexLineCounter.getCount(); i++) {
                 if (i < HackData.linesPerCol) {
-                    font.draw(batch, hexes[i], EDGE_GAP, Gdx.graphics.getHeight() - EDGE_GAP - font.getLineHeight() * (5 + i));
+                    font.draw(batch, hexes[i], EDGE_GAP, Gdx.graphics.getHeight() - EDGE_GAP - font.getLineHeight() * (5 + i) - Gui.stutter);
                 } else {
-                    font.draw(batch, hexes[i], EDGE_GAP + HEX_GAP, Gdx.graphics.getHeight() - EDGE_GAP - font.getLineHeight() * (5 + i - HackData.linesPerCol));
+                    font.draw(batch, hexes[i], EDGE_GAP + HEX_GAP, Gdx.graphics.getHeight() - EDGE_GAP - font.getLineHeight() * (5 + i - HackData.linesPerCol) - Gui.stutter);
                 }
             }
         }
@@ -166,7 +167,7 @@ public class HackScreen extends TerminalScreen {
         if (drawContents) {
             //Draw left column
             for (int i = 0; i < HackData.linesPerCol; i++) {
-                font.draw(batch, data.getExpandedLine(i, 0), EDGE_GAP + Gui.getStringPixelWidth(font, hexes[0]) + 20, Gdx.graphics.getHeight() - EDGE_GAP - font.getLineHeight() * (5 + i));
+                font.draw(batch, data.getExpandedLine(i, 0), EDGE_GAP + Gui.getStringPixelWidth(font, hexes[0]) + 20, Gdx.graphics.getHeight() - EDGE_GAP - font.getLineHeight() * (5 + i) - Gui.stutter);
             }
         }
 

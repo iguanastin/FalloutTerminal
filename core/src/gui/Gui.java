@@ -17,7 +17,9 @@ import com.badlogic.gdx.math.Matrix4;
  * @author austinbt
  */
 public abstract class Gui {
-    
+
+    public static int stutter = 0;
+
     /**
      * Global border width for this GUI
      */
