@@ -10,7 +10,7 @@ import java.util.ArrayList;
 /**
  * @author austinbt
  */
-class FileScreen extends TerminalScreen {
+public class FileScreen extends TerminalScreen {
 
     private static final int BUTTON_HEIGHT = 40;
     private static final int BUTTON_GAP = 15;
@@ -48,9 +48,6 @@ class FileScreen extends TerminalScreen {
 
     private void generateDirectoryButtons() {
         buttons.clear();
-
-//        int availableSpace = Gdx.graphics.getHeight() - terminal.getHeightOfTitle() - BUTTON_GAP - BUTTON_HEIGHT;
-//        int buttonsPerPage = availableSpace / (BUTTON_HEIGHT + BUTTON_GAP);
 
         //TODO: Implement paging
 

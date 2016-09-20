@@ -129,6 +129,9 @@ public class TerminalMain extends ApplicationAdapter {
      */
     private static long startTime;
 
+    private static final int STUTTER_TIME = 300;
+    private int stutterTimer = 0;
+
 
     /**
      * Set the LwjglFrame that contains this application
@@ -183,7 +186,7 @@ public class TerminalMain extends ApplicationAdapter {
 //        ((FileScreen) screen).setFile(dir);
 //        openScreen(screen);
 
-        TerminalScreen screen = new HackScreen(this);
+        TerminalScreen screen = new HackScreen(this, HackData.DIFF_AVERAGE);
         openScreen(screen);
         //TODO: REMOVE ------------
 
@@ -521,6 +524,14 @@ public class TerminalMain extends ApplicationAdapter {
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.F3)) {
             drawDebug = !drawDebug;
+        }
+
+        stutterTimer--;
+        if (stutterTimer <= 0) {
+            stutterTimer = (int)(Math.random()*STUTTER_TIME);
+            Gui.stutter = 2 + (int)(Math.random()*4);
+        } else if (Gui.stutter != 0) {
+            Gui.stutter = 0;
         }
     }
 
