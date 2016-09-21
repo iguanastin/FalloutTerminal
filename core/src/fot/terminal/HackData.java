@@ -58,6 +58,69 @@ public class HackData {
         return allText.substring(index, index + lineLength);
     }
 
+    public boolean isBracketGroup(int charIndex) {
+        if (!bracketStarts.contains(allText.charAt(charIndex) + "")) {
+            return false;
+        }
+
+        int col = 0;
+        if (charIndex >= lineLength * linesPerCol) col = 1;
+        int row = (charIndex - col * linesPerCol) / lineLength;
+        String line = getLine(row, col).substring(charIndex % lineLength);
+
+        return line.contains(bracketEnds.charAt(bracketStarts.indexOf(line.charAt(0))) + "");
+
+    }
+
+    public int getBracketGroupEnd(int groupIndex) {
+        if (isBracketGroup(groupIndex)) {
+            char toFind = bracketEnds.charAt(bracketStarts.indexOf(allText.charAt(groupIndex)));
+            return allText.indexOf(toFind, groupIndex);
+        } else {
+            return -1;
+        }
+    }
+
+    public boolean isWord(int charIndex) {
+        return Character.isLetter(allText.charAt(charIndex));
+    }
+
+    public String getWord(int wordIndex) {
+        if (!isWord(wordIndex)) {
+            return null;
+        }
+
+        String word = "";
+
+        while (wordIndex < allText.length() && Character.isLetter(allText.charAt(wordIndex))) {
+            word += allText.charAt(wordIndex);
+        }
+
+        return word;
+    }
+
+    public boolean isWordWrapped(int wordIndex) {
+        if (!isWord(wordIndex)) {
+            //TODO: THROW DESCRIPTIVE EXCEPTION
+            return false;
+        }
+
+        String word = getWord(wordIndex);
+        int row = wordIndex / lineLength;
+        int endRow = (wordIndex + word.length() - 1) / lineLength;
+
+        return endRow > row;
+
+    }
+
+    public int getWordWrapSplitIndex(int wordIndex) {
+        if (!isWordWrapped(wordIndex)) {
+            return -1;
+        }
+
+        return wordIndex - wordIndex % lineLength + lineLength;
+    }
+
     public String getExpandedLine(int row, int col) {
         String line = getLine(row, col);
         String work = "";
@@ -70,7 +133,7 @@ public class HackData {
     }
 
     private void generateAllText() {
-        randomizeAllText();
+        randomizeJunkAllText();
 
         fillWordsInAllText();
     }
@@ -119,11 +182,8 @@ public class HackData {
         if (pos > 0 && Character.isLetter(allText.charAt(pos-1))) {
             return true;
         }
-        if (pos + word.length() + 1 < allText.length() && Character.isLetter(allText.charAt(pos + word.length() + 1))) {
-            return true;
-        }
+        return pos + word.length() + 1 < allText.length() && Character.isLetter(allText.charAt(pos + word.length() + 1));
 
-        return false;
     }
 
     private ArrayList<String> getWordSet(int difficulty) {
@@ -160,7 +220,7 @@ public class HackData {
         }
     }
 
-    private void randomizeAllText() {
+    private void randomizeJunkAllText() {
         allText = "";
         for (int i = 0; i < numChars; i++) {
             allText += randomChars[(int)(Math.random()*randomChars.length)];
