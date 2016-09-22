@@ -23,7 +23,7 @@ public class HackData {
     public static final int DIFF_HARD = 3;
     public static final int DIFF_VERY_HARD = 4;
 
-    private static final char[] randomChars = {'{', ']', '(', ')', '[', ']', '<', '>', '?', '-', '_', '\'', ';', '^', '*', '\\', '/', '!', '+', '#', '$', '%', '.', '|', ':', '"', '=', ','};
+    private static final char[] randomChars = {'{', '}', '(', ')', '[', ']', '<', '>', '?', '-', '_', '\'', ';', '^', '*', '\\', '/', '!', '+', '#', '$', '%', '.', '|', ':', '"', '=', ','};
     private static final String bracketStarts = "([{<";
     private static final String bracketEnds = ")]}>";
 
@@ -36,6 +36,10 @@ public class HackData {
     private String allText;
 
     public HackData(int difficulty) {
+        if (difficulty != DIFF_VERY_EASY && difficulty != DIFF_EASY && difficulty != DIFF_AVERAGE && difficulty != DIFF_HARD && difficulty != DIFF_VERY_HARD) {
+            throw new HackDataException("Invalid difficulty enum: " + difficulty);
+        }
+
         this.difficulty = difficulty;
 
         if (easyWords.isEmpty()) {
@@ -50,6 +54,13 @@ public class HackData {
     }
 
     public String getLine(int row, int col) {
+        if (col < 0 || col >= columns) {
+            throw new IndexOutOfBoundsException(col + " out of column bounds [0, " + (columns - 1) + "]");
+        }
+        if (row < 0 || row >= linesPerCol) {
+            throw new IndexOutOfBoundsException(col + " out of row bounds [0, " + (linesPerCol - 1) + "]");
+        }
+
         int rowIndex = row;
         if (col == 1) rowIndex += linesPerCol;
 
@@ -69,7 +80,6 @@ public class HackData {
         String line = getLine(row, col).substring(charIndex % lineLength);
 
         return line.contains(bracketEnds.charAt(bracketStarts.indexOf(line.charAt(0))) + "");
-
     }
 
     public int getBracketGroupEnd(int groupIndex) {
@@ -77,7 +87,7 @@ public class HackData {
             char toFind = bracketEnds.charAt(bracketStarts.indexOf(allText.charAt(groupIndex)));
             return allText.indexOf(toFind, groupIndex);
         } else {
-            return -1;
+            throw new HackDataException("Attempting to find bracket group end of non-bracket group [index=" + groupIndex + "]");
         }
     }
 
@@ -87,7 +97,7 @@ public class HackData {
 
     public String getWord(int wordIndex) {
         if (!isWord(wordIndex)) {
-            return null;
+            throw new HackDataException("Attempting to get non-word [index=" + wordIndex + "]");
         }
 
         String word = "";
@@ -101,8 +111,7 @@ public class HackData {
 
     public boolean isWordWrapped(int wordIndex) {
         if (!isWord(wordIndex)) {
-            //TODO: THROW DESCRIPTIVE EXCEPTION
-            return false;
+            throw new HackDataException("Checking wrap of non-word [index=" + wordIndex + "]");
         }
 
         String word = getWord(wordIndex);
@@ -115,7 +124,7 @@ public class HackData {
 
     public int getWordWrapSplitIndex(int wordIndex) {
         if (!isWordWrapped(wordIndex)) {
-            return -1;
+            throw new HackDataException("Attempting to get wrap split index of non-word [index=" + wordIndex + "]");
         }
 
         return wordIndex - wordIndex % lineLength + lineLength;
