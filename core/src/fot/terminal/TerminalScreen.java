@@ -11,9 +11,9 @@ import java.util.ArrayList;
  *
  * //TODO: Implement screens into TerminalMain
  */
-abstract class TerminalScreen implements InputProcessor {
-    boolean drawTitle = false;
-    boolean drawTitleSplitter = false;
+public abstract class TerminalScreen implements InputProcessor {
+    protected boolean drawTitle = false;
+    protected boolean drawTitleSplitter = false;
     protected TerminalMain terminal;
 
     private ArrayList<ScreenAction> actions = new ArrayList<ScreenAction>();

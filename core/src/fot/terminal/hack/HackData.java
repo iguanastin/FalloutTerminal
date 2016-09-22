@@ -1,6 +1,7 @@
-package fot.terminal;
+package fot.terminal.hack;
 
 import com.badlogic.gdx.Gdx;
+import fot.terminal.TerminalMain;
 
 import java.io.File;
 import java.io.IOException;
@@ -89,6 +90,10 @@ public class HackData {
         } else {
             throw new HackDataException("Attempting to find bracket group end of non-bracket group [index=" + groupIndex + "]");
         }
+    }
+
+    public int getDifficulty() {
+        return difficulty;
     }
 
     public boolean isWord(int charIndex) {

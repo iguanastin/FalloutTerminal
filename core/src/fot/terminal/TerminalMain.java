@@ -13,6 +13,8 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import fot.terminal.hack.HackData;
+import fot.terminal.hack.HackScreen;
 import gui.Gui;
 
 import java.math.BigDecimal;

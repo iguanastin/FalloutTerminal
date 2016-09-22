@@ -1,4 +1,4 @@
-package fot.terminal;
+package fot.terminal.hack;
 
 /**
  * @author austinbt
