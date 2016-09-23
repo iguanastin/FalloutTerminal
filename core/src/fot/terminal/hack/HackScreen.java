@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import fot.actions.CountAction;
 import fot.actions.ScreenActionListener;
+import fot.terminal.TerminalAudio;
 import fot.terminal.TerminalMain;
 import fot.terminal.TerminalScreen;
 import gui.Gui;
@@ -68,7 +69,7 @@ public class HackScreen extends TerminalScreen {
 
     @Override
     public void opened() {
-        terminal.playCharScroll();
+        TerminalAudio.playCharScroll();
 
         /*
         Set up and play opening animation ------------------------------------------------------------------------------
@@ -79,7 +80,7 @@ public class HackScreen extends TerminalScreen {
             public void actionCompleted() {
                 drawSecondLine = true;
                 secondLineCounter.start();
-                terminal.playCharScroll();
+                TerminalAudio.playCharScroll();
             }
         });
         firstLineCounter.start();
@@ -92,7 +93,7 @@ public class HackScreen extends TerminalScreen {
                 drawAttemptsLine = true;
                 drawHexLines = true;
                 hexLineCounter.start();
-                terminal.playCharScroll();
+                TerminalAudio.playCharScroll();
             }
         });
         addAction(secondLineCounter);
@@ -101,7 +102,7 @@ public class HackScreen extends TerminalScreen {
         hexLineCounter.setListener(new ScreenActionListener() {
             @Override
             public void actionCompleted() {
-                terminal.playCharScroll();
+                TerminalAudio.playCharScroll();
                 drawContents = true;
                 drawOutput = true;
                 allowInput = true;
@@ -109,7 +110,7 @@ public class HackScreen extends TerminalScreen {
 
             @Override
             public void actionUpdated() {
-                if (hexLineCounter.getCount() == HackData.linesPerCol) terminal.playCharScroll();
+                if (hexLineCounter.getCount() == HackData.linesPerCol) TerminalAudio.playCharScroll();
             }
         });
         addAction(hexLineCounter);

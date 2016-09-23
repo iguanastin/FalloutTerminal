@@ -22,6 +22,12 @@ import java.util.Random;
 
 public class TerminalMain extends ApplicationAdapter {
 
+    private static final String topLine = "ROBCO INDUSTRIES UNIFIED OPERATING SYSTEM";
+    private static final String middleLine = "COPYRIGHT 2075-2077 ROBCO INDUSTRIES";
+    private static final String bottomLine = "-SERVER 1-";
+
+    private static final int backgroundLineGap = 6;
+
     /**
      * Distance from the top of the canvas to the top of the title text
      */
@@ -32,13 +38,6 @@ public class TerminalMain extends ApplicationAdapter {
      * Current position of the polling light
      */
     private int pollingLightPos = 0;
-    /**
-     * Current color of the polling light.
-     * <p>
-     * The alpha value of this color object is updated every frame.
-     */
-    private Color pollingLightColor;
-
 
     /**
      * Current alpha of the glow
@@ -65,29 +64,14 @@ public class TerminalMain extends ApplicationAdapter {
      */
     private TerminalScreen screen;
 
-
-    /**
-     * Smallest terminal font
-     */
     public static BitmapFont smallFont;
-    /**
-     * Standard terminal font
-     */
     public static BitmapFont mediumFont;
-    /**
-     * Largest terminal font
-     */
     public static BitmapFont largeFont;
 
 
-    /**
-     * Vignette texture to be rendered over the screen
-     */
     private Texture vignetteTexture;
-    /**
-     * Dirt texture to be rendered over the screen
-     */
     private Texture noiseTexture;
+    private Texture pollingTexture;
 
 
     /**
@@ -100,28 +84,6 @@ public class TerminalMain extends ApplicationAdapter {
      * LwjglFrame containing this application
      */
     private LwjglFrame lwjglFrame;
-
-
-    private Music backgroundAudioA, backgroundAudioB, backgroundAudioC;
-    private Sound buttonClickSound1, buttonClickSound2, buttonClickSound3;
-    private Sound menuCancelSound;
-    private Sound menuSelectSound;
-    private Sound charScrollSound;
-    private Sound charSingleSound1, charSingleSound2, charSingleSound3, charSingleSound4, charSingleSound5, charSingleSound6;
-    private Sound passGoodSound, passBadSound;
-    private Sound charMultipleSound1, charMultipleSound2, charMultipleSound3, charMultipleSound4;
-    /**
-     * Whether or not any audio will be played
-     */
-    private boolean playAudio = true;
-    /**
-     * Scalar value of the volume of background music [0f, 1f]
-     */
-    private float backgroundAudioVolume = 0.8f;
-    /**
-     * Scalar value of the volume of sound effects [0f, 1f]
-     */
-    private float soundFXVolume = 0.8f;
 
 
     /**
@@ -161,7 +123,6 @@ public class TerminalMain extends ApplicationAdapter {
 
         //Initialize scrolling thing
         pollingLightPos = Gdx.graphics.getHeight();
-        pollingLightColor = Gui.trim_color.cpy();
 
         //Create glow color object
         glowColor = Gui.trim_color.cpy();
@@ -171,9 +132,9 @@ public class TerminalMain extends ApplicationAdapter {
         //Load overlay textures
         loadOverlayTextures();
         //Load audio files
-        loadAudio();
+        TerminalAudio.loadAudio();
         //Start background audio
-        startBackgroundAudio();
+        TerminalAudio.startBackgroundAudio();
 
         //TODO: REMOVE ------------
 //        TerminalScreen screen = new FileScreen(this);
@@ -237,188 +198,6 @@ public class TerminalMain extends ApplicationAdapter {
     }
 
     /**
-     * Starts a random background audio file
-     */
-    private void startBackgroundAudio() {
-        if (!playAudio) {
-            return;
-        }
-
-        //Play background music
-        switch (new Random().nextInt(3)) {
-            case 0:
-                backgroundAudioA.play();
-                break;
-            case 1:
-                backgroundAudioB.play();
-                break;
-            case 2:
-                backgroundAudioC.play();
-                break;
-        }
-
-        Gdx.app.log("Setup", "(" + getRunTime() + ") Started background audio. (A:" + backgroundAudioA.isPlaying() + ", B:" + backgroundAudioB.isPlaying() + ", C:" + backgroundAudioC.isPlaying() + ")");
-    }
-
-    /**
-     * Plays a randomized button click sound effect.
-     *
-     * If audio has not been loaded, a NullPointerException will be thrown.
-     */
-    public void playButtonClick() {
-        if (!playAudio) {
-            return;
-        }
-
-        switch (new Random().nextInt(3)) {
-            case 0:
-                buttonClickSound1.play(soundFXVolume);
-                break;
-            case 1:
-                buttonClickSound2.play(soundFXVolume);
-                break;
-            case 2:
-                buttonClickSound3.play(soundFXVolume);
-                break;
-        }
-    }
-
-    public void playMenuCancel() {
-        if (!playAudio) {
-            return;
-        }
-
-        menuCancelSound.play(soundFXVolume);
-    }
-
-    public void playMenuSelect() {
-        if (!playAudio) {
-            return;
-        }
-
-        menuSelectSound.play(soundFXVolume);
-    }
-
-    public void playCharScroll() {
-        if (!playAudio) {
-            return;
-        }
-
-        charScrollSound.play(soundFXVolume);
-    }
-
-    public void playCharSingle() {
-        if (!playAudio) {
-            return;
-        }
-
-        switch (new Random().nextInt(6)) {
-            case 0:
-                charSingleSound1.play(soundFXVolume);
-                break;
-            case 1:
-                charSingleSound2.play(soundFXVolume);
-                break;
-            case 2:
-                charSingleSound3.play(soundFXVolume);
-                break;
-            case 3:
-                charSingleSound4.play(soundFXVolume);
-                break;
-            case 4:
-                charSingleSound5.play(soundFXVolume);
-                break;
-            case 5:
-                charSingleSound6.play(soundFXVolume);
-                break;
-        }
-    }
-
-    public void playPassGood() {
-        if (!playAudio) {
-            return;
-        }
-
-        passGoodSound.play(soundFXVolume);
-    }
-
-    public void playPassBad() {
-        if (!playAudio) {
-            return;
-        }
-
-        passBadSound.play(soundFXVolume);
-    }
-
-    public void playCharMultiple() {
-        if (!playAudio) {
-            return;
-        }
-
-        switch (new Random().nextInt(4)) {
-            case 0:
-                charMultipleSound1.play(soundFXVolume);
-                break;
-            case 1:
-                charMultipleSound2.play(soundFXVolume);
-                break;
-            case 2:
-                charMultipleSound3.play(soundFXVolume);
-                break;
-            case 3:
-                charMultipleSound4.play(soundFXVolume);
-                break;
-        }
-    }
-
-    /**
-     * Loads all audio files required for this application.
-     *
-     * Automatically called by create() when the application is launched
-     *
-     * @see TerminalMain#create()
-     */
-    private void loadAudio() {
-        backgroundAudioA = Gdx.audio.newMusic(Gdx.files.internal("audio/obj_console_03_a_lp.wav"));
-        backgroundAudioA.setLooping(true);
-        backgroundAudioA.setVolume(backgroundAudioVolume);
-
-        backgroundAudioB = Gdx.audio.newMusic(Gdx.files.internal("audio/obj_console_03_b_lp.wav"));
-        backgroundAudioB.setLooping(true);
-        backgroundAudioB.setVolume(backgroundAudioVolume);
-
-        backgroundAudioC = Gdx.audio.newMusic(Gdx.files.internal("audio/obj_console_03_c_lp.wav"));
-        backgroundAudioC.setLooping(true);
-        backgroundAudioC.setVolume(backgroundAudioVolume);
-
-        buttonClickSound1 = Gdx.audio.newSound(Gdx.files.internal("audio/ui_hacking_charenter_01.wav"));
-        buttonClickSound2 = Gdx.audio.newSound(Gdx.files.internal("audio/ui_hacking_charenter_02.wav"));
-        buttonClickSound3 = Gdx.audio.newSound(Gdx.files.internal("audio/ui_hacking_charenter_03.wav"));
-
-        menuCancelSound = Gdx.audio.newSound(Gdx.files.internal("audio/ui_menu_cancel.wav"));
-        menuSelectSound = Gdx.audio.newSound(Gdx.files.internal("audio/ui_menu_focus.wav"));
-
-        charScrollSound = Gdx.audio.newSound(Gdx.files.internal("audio/ui_hacking_charscroll.wav"));
-
-        charSingleSound1 = Gdx.audio.newSound(Gdx.files.internal("audio/ui_hacking_charsingle_01.wav"));
-        charSingleSound2 = Gdx.audio.newSound(Gdx.files.internal("audio/ui_hacking_charsingle_02.wav"));
-        charSingleSound3 = Gdx.audio.newSound(Gdx.files.internal("audio/ui_hacking_charsingle_03.wav"));
-        charSingleSound4 = Gdx.audio.newSound(Gdx.files.internal("audio/ui_hacking_charsingle_04.wav"));
-        charSingleSound5 = Gdx.audio.newSound(Gdx.files.internal("audio/ui_hacking_charsingle_05.wav"));
-        charSingleSound6 = Gdx.audio.newSound(Gdx.files.internal("audio/ui_hacking_charsingle_06.wav"));
-
-        passGoodSound = Gdx.audio.newSound(Gdx.files.internal("audio/ui_hacking_passgood.wav"));
-        passBadSound = Gdx.audio.newSound(Gdx.files.internal("audio/ui_hacking_passbad.wav"));
-
-        charMultipleSound1 = Gdx.audio.newSound(Gdx.files.internal("audio/ui_hacking_charmultiple_01.wav"));
-        charMultipleSound2 = Gdx.audio.newSound(Gdx.files.internal("audio/ui_hacking_charmultiple_02.wav"));
-        charMultipleSound3 = Gdx.audio.newSound(Gdx.files.internal("audio/ui_hacking_charmultiple_03.wav"));
-        charMultipleSound4 = Gdx.audio.newSound(Gdx.files.internal("audio/ui_hacking_charmultiple_04.wav"));
-
-        Gdx.app.log("Setup", "(" + getRunTime() + ") Loaded all audio files");
-    }
-
-    /**
      * Loads all overlay textures used by this application.
      *
      * Automatically called by create() when the application is launched
@@ -428,6 +207,7 @@ public class TerminalMain extends ApplicationAdapter {
     private void loadOverlayTextures() {
         vignetteTexture = new Texture(Gdx.files.internal("vignette.png"));
         noiseTexture = new Texture(Gdx.files.internal("noise.png"));
+        pollingTexture = new Texture(Gdx.files.internal("poll.png"));
 
         Gdx.app.log("Setup", "(" + getRunTime() + ") Loaded all overlay textures");
     }
@@ -581,7 +361,7 @@ public class TerminalMain extends ApplicationAdapter {
     /**
      * Disposes of all application resources
      *
-     * @see TerminalMain#disposeAudio()
+     * @see TerminalAudio#disposeAudio()
      * @see TerminalMain#disposeFonts()
      * @see TerminalMain#disposeOverlayTextures()
      * @see Gui#dispose()
@@ -598,7 +378,7 @@ public class TerminalMain extends ApplicationAdapter {
         disposeOverlayTextures();
 
         //Dispose of audio
-        disposeAudio();
+        TerminalAudio.disposeAudio();
 
         Gdx.app.log("Dispose", "(" + getRunTime() + ") Disposed of all resources");
     }
@@ -620,44 +400,9 @@ public class TerminalMain extends ApplicationAdapter {
     private void disposeOverlayTextures() {
         vignetteTexture.dispose();
         noiseTexture.dispose();
+        pollingTexture.dispose();
 
         Gdx.app.log("Dispose", "(" + getRunTime() + ") Disposed of overlay textures");
-    }
-
-    /**
-     * Disposes of this application's audio clips
-     */
-    private void disposeAudio() {
-        //Dispose audio
-        backgroundAudioA.dispose();
-        backgroundAudioB.dispose();
-        backgroundAudioC.dispose();
-
-        buttonClickSound1.dispose();
-        buttonClickSound2.dispose();
-        buttonClickSound3.dispose();
-
-        menuCancelSound.dispose();
-        menuSelectSound.dispose();
-
-        charScrollSound.dispose();
-
-        charSingleSound1.dispose();
-        charSingleSound2.dispose();
-        charSingleSound3.dispose();
-        charSingleSound4.dispose();
-        charSingleSound5.dispose();
-        charSingleSound6.dispose();
-
-        passGoodSound.dispose();
-        passBadSound.dispose();
-
-        charMultipleSound1.dispose();
-        charMultipleSound2.dispose();
-        charMultipleSound3.dispose();
-        charMultipleSound4.dispose();
-
-        Gdx.app.log("Dispose", "(" + getRunTime() + ") Disposed of audio");
     }
 
     /**
@@ -745,6 +490,7 @@ public class TerminalMain extends ApplicationAdapter {
         Gui.end(Gui.batch);
         Gui.begin(Gui.sr, ShapeRenderer.ShapeType.Filled, Gui.trim_color);
 
+        //Draw splitter line
         int splitterY = Gdx.graphics.getHeight() - getHeightOfTitle();
         Gui.sr.rect(TITLE_DISTANCE_FROM_TOP, splitterY - Gui.stutter, Gdx.graphics.getWidth() - TITLE_DISTANCE_FROM_TOP * 2, 5);
 
@@ -755,6 +501,7 @@ public class TerminalMain extends ApplicationAdapter {
      * Draws screen glow overlay
      */
     private void drawGlow() {
+        //Update glow counters
         if (glowIncrease) {
             glow++;
         } else {
@@ -765,13 +512,22 @@ public class TerminalMain extends ApplicationAdapter {
         } else if (glow <= 0) {
             glowIncrease = true;
         }
+
+        //Update glowColor alpha
         glowColor.a = glow / (255f * 10f);
+
         Gui.end(Gui.batch);
         Gui.end(Gui.sr);
+
+        //Enable blending
         Gdx.gl.glEnable(GL20.GL_BLEND);
         Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
         Gui.begin(Gui.sr, ShapeRenderer.ShapeType.Filled, glowColor);
+
+        //Draw glow
         Gui.sr.rect(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+
+        //Cleanup
         Gui.end(Gui.sr);
         Gdx.gl.glDisable(GL20.GL_BLEND);
     }
@@ -781,10 +537,6 @@ public class TerminalMain extends ApplicationAdapter {
      */
     private void drawTitleText() {
         Gui.begin(Gui.batch);
-
-        String topLine = "ROBCO INDUSTRIES UNIFIED OPERATING SYSTEM";
-        String middleLine = "COPYRIGHT 2075-2077 ROBCO INDUSTRIES";
-        String bottomLine = "-SERVER 1-";
 
         largeFont.setColor(Gui.text_color);
 
@@ -803,10 +555,9 @@ public class TerminalMain extends ApplicationAdapter {
         Gui.end(Gui.batch);
         Gui.begin(Gui.sr, ShapeRenderer.ShapeType.Filled, Gui.alternate_color);
 
-        final int lineGap = 6;
-
-        for (int i = 0; i < Gdx.graphics.getHeight(); i += lineGap) {
-            Gui.sr.rect(0, i, Gdx.graphics.getWidth(), lineGap / 2);
+        //Draw background lines
+        for (int i = 0; i < Gdx.graphics.getHeight(); i += backgroundLineGap) {
+            Gui.sr.rect(0, i, Gdx.graphics.getWidth(), backgroundLineGap / 2);
         }
 
         Gui.end(Gui.sr);
@@ -817,20 +568,23 @@ public class TerminalMain extends ApplicationAdapter {
      */
     private void drawPollingLight() {
         Gui.end(Gui.batch);
+        //Enable transparency blending
         Gdx.gl.glEnable(GL20.GL_BLEND);
         Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
-        Gui.begin(Gui.sr, ShapeRenderer.ShapeType.Line, pollingLightColor);
-        for (int i = 0; i < 127; i++) {
-            pollingLightColor.a = (128 - i) / 255f;
-            Gui.sr.setColor(pollingLightColor);
+        Gui.begin(Gui.batch);
 
-            Gui.sr.line(0, pollingLightPos + i - Gui.stutter, Gdx.graphics.getWidth(), pollingLightPos + i - Gui.stutter);
-        }
+        //Draw polling light
+        Gui.batch.draw(pollingTexture, 0, pollingLightPos, Gdx.graphics.getWidth(), pollingTexture.getHeight());
+
+        //Move polling light
         pollingLightPos -= 3;
+
+        //Reset if far enough down
         if (pollingLightPos < -Gdx.graphics.getHeight()) {
             pollingLightPos = Gdx.graphics.getHeight();
         }
-        Gui.end(Gui.sr);
+
+        //Cleanup
         Gdx.gl.glDisable(GL20.GL_BLEND);
     }
 }

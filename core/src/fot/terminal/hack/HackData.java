@@ -139,11 +139,11 @@ public class HackData {
         String line = getLine(row, col);
         String work = "";
 
-        for (int i = 1; i < lineLength; i++) {
+        for (int i = 0; i < lineLength; i++) {
             work += line.charAt(i) + " ";
         }
 
-        return work.substring(0, work.length() - 1);
+        return work.trim();
     }
 
     private void generateAllText() {

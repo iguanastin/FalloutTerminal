@@ -88,7 +88,7 @@ public class FileScreen extends TerminalScreen {
                         lastMY = Gdx.input.getY();
 
                         if (index != i) {
-                            terminal.playMenuSelect();
+                            TerminalAudio.playMenuSelect();
                         }
 
                         index = i;
@@ -98,7 +98,7 @@ public class FileScreen extends TerminalScreen {
                 //Mouse down over button
                 if (ScreenButton.isMouseJustDown(SIDE_BORDER, getRenderYForIndex(i), Gdx.graphics.getWidth() - SIDE_BORDER * 2, BUTTON_HEIGHT)) {
                     if (index == i) {
-                        terminal.playButtonClick();
+                        TerminalAudio.playButtonClick();
                         button.click();
                         break; //MUST BREAK OR LOOP WILL THROW EXCEPTION
                     }
@@ -162,7 +162,7 @@ public class FileScreen extends TerminalScreen {
         if (keycode == Input.Keys.ESCAPE || keycode == Input.Keys.BACKSPACE) {
             if (file.getParent() != null) {
                 setFile(file.getParent());
-                terminal.playMenuCancel();
+                TerminalAudio.playMenuCancel();
             }
             return true;
         }
@@ -175,7 +175,7 @@ public class FileScreen extends TerminalScreen {
             //Move down
             if (index < buttons.size() - 1) {
                 index++;
-                terminal.playMenuSelect();
+                TerminalAudio.playMenuSelect();
             }
 
             return true;
@@ -183,7 +183,7 @@ public class FileScreen extends TerminalScreen {
             //Move up
             if (index > 0) {
                 index--;
-                terminal.playMenuSelect();
+                TerminalAudio.playMenuSelect();
             }
 
             return true;
@@ -191,7 +191,7 @@ public class FileScreen extends TerminalScreen {
             //Select
             if (index < buttons.size()) {
                 buttons.get(index).click();
-                terminal.playButtonClick();
+                TerminalAudio.playButtonClick();
             }
 
             return true;
@@ -210,7 +210,7 @@ public class FileScreen extends TerminalScreen {
         } else if (keycode == Input.Keys.ESCAPE || keycode == Input.Keys.BACKSPACE) {
             //Go back
             if (file.getParent() != null) {
-                terminal.playMenuCancel();
+                TerminalAudio.playMenuCancel();
                 setFile(file.getParent());
             }
 
