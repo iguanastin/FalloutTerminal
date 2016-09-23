@@ -3,8 +3,6 @@ package fot.terminal;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
-import com.badlogic.gdx.audio.Music;
-import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
 import com.badlogic.gdx.backends.lwjgl.LwjglFrame;
 import com.badlogic.gdx.graphics.Color;
@@ -18,7 +16,6 @@ import fot.terminal.hack.HackScreen;
 import gui.Gui;
 
 import java.math.BigDecimal;
-import java.util.Random;
 
 public class TerminalMain extends ApplicationAdapter {
 
@@ -149,7 +146,9 @@ public class TerminalMain extends ApplicationAdapter {
 //        ((FileScreen) screen).setFile(dir);
 //        openScreen(screen);
 
-        TerminalScreen screen = new HackScreen(this, HackData.DIFF_AVERAGE);
+        HackScreen screen = new HackScreen(this, HackData.DIFF_AVERAGE);
+        screen.addOutput("test output 1");
+        screen.addOutput("long line test here, should wrap at least once successfully");
         openScreen(screen);
         //TODO: REMOVE ------------
 

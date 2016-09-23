@@ -22,9 +22,9 @@ public class HackScreen extends TerminalScreen {
 
     private CountAction firstLineCounter, secondLineCounter, hexLineCounter;
 
-    private String firstLine = "ROBCO INDUSTRIES (TM) TERMLINK PROTOCOL";
-    private String secondLine = "ENTER PASSWORD NOW";
-    private String attemptsLine = " ATTEMPT(S) LEFT: ";
+    private final String firstLine = "ROBCO INDUSTRIES (TM) TERMLINK PROTOCOL";
+    private final String secondLine = "ENTER PASSWORD NOW";
+    private final String attemptsLine = " ATTEMPT(S) LEFT: ";
 
     private String[] hexes = new String[HackData.linesPerCol * 2];
 
@@ -50,8 +50,32 @@ public class HackScreen extends TerminalScreen {
         output = new String[HackData.linesPerCol - 2];
     }
 
-    private void addOutput(String msg) {
-        //TODO: Implement
+    public void addOutput(String msg) {
+        if (msg.length() < OUTPUT_WIDTH - 1) {
+            output[0] = '>' + msg;
+        } else {
+            String work = msg;
+            String excess = "";
+
+            while (work.length() > OUTPUT_WIDTH - 1) {
+                if (work.contains(" ")) {
+                    excess = work.substring(work.lastIndexOf(' ') + 1) + ' ' + excess;
+                    work = work.substring(0, work.lastIndexOf(' '));
+                } else {
+                    excess = work.charAt(work.length() - 1) + excess;
+                    work = work.substring(0, work.length() - 1);
+                }
+            }
+
+            addOutput(work);
+            addOutput(excess);
+        }
+    }
+
+    private void shiftConsoleUp() {
+        for (int i = output.length - 1; i > 0; i++) {
+            output[i] = output[i - 1];
+        }
     }
 
     public void setListener(HackScreenListener listener) {
@@ -180,7 +204,9 @@ public class HackScreen extends TerminalScreen {
 
         //Draw output
         if (drawOutput) {
-            //TODO: DRAW OUTPUT
+            for (int i = 0; i < output.length; i++) {
+                font.draw(batch, output[i], EDGE_GAP + HEX_GAP * 2 + 20, Gdx.graphics.getHeight() - EDGE_GAP - font.getLineHeight() * (output.length - i));
+            }
         }
     }
 }
