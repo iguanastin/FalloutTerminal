@@ -147,7 +147,7 @@ public class TerminalMain extends ApplicationAdapter {
 //        ((FileScreen) screen).setFile(dir);
 //        openScreen(screen);
 
-        HackScreen screen = new HackScreen(this, HackData.DIFF_AVERAGE);
+        HackScreen screen = new HackScreen(this, HackData.DIFF_EASY);
 //        screen.addOutput("test output 1");
 //        screen.addOutput("long line test here, should wrap at least once successfully");
         openScreen(screen);

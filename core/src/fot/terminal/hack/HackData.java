@@ -17,11 +17,6 @@ public class HackData {
 
     public static final int numChars = lineLength * linesPerCol * columns;
 
-    private int difficulty;
-    private String solution;
-    private boolean usedReplenish = false;
-    private int attempts = 3;
-
     public static final int DIFF_VERY_EASY = 0;
     public static final int DIFF_EASY = 1;
     public static final int DIFF_AVERAGE = 2;
@@ -38,6 +33,17 @@ public class HackData {
     private final static ArrayList<String> hardWords = new ArrayList<String>();
     private final static ArrayList<String> veryHardWords = new ArrayList<String>();
 
+    private static final int MAX_ATTEMPTS = 3;
+
+
+    private int difficulty;
+    private String solution;
+    private boolean usedReplenish = false;
+    private int attempts = MAX_ATTEMPTS;
+
+    private ArrayList<String> usedWords = new ArrayList<String>();
+    private ArrayList<Integer> usedBracketGroups = new ArrayList<Integer>();
+
     private String allText;
 
     public HackData(int difficulty) {
@@ -52,6 +58,40 @@ public class HackData {
         }
 
         generateAllText();
+    }
+
+    public void removeDud(int bracketGroupIndex) {
+        if (usedWords.size() <= 1) {
+            return;
+        }
+
+        String toRemove = null;
+        while (toRemove == null || solution.equals(toRemove)) toRemove = usedWords.get((int)(Math.random()*usedWords.size()));
+        String replacement = "";
+        for (int i = 0; i < toRemove.length(); i++) {
+            replacement += '.';
+        }
+
+        usedWords.remove(toRemove);
+        usedBracketGroups.add(bracketGroupIndex);
+
+        allText = allText.replace(toRemove, replacement);
+    }
+
+    public boolean allowanceReplenishUsed() {
+        return usedReplenish;
+    }
+
+    public boolean replenishAllowance() {
+        if (!usedReplenish) {
+            usedReplenish = true;
+
+            attempts = MAX_ATTEMPTS;
+
+            return true;
+        }
+
+        return false;
     }
 
     public String getAllText() {
@@ -84,6 +124,10 @@ public class HackData {
 
     public boolean isBracketGroup(int charIndex) {
         if (!bracketStarts.contains(allText.charAt(charIndex) + "")) {
+            return false;
+        }
+
+        if (usedBracketGroups.contains(charIndex)) {
             return false;
         }
 
@@ -178,12 +222,13 @@ public class HackData {
             throw new HackDataException("Checking wrap of non-word [index=" + wordIndex + "]");
         }
 
-        String word = getWord(wordIndex);
-        int row = wordIndex / lineLength;
-        int endRow = (wordIndex + word.length() - 1) / lineLength;
+        int wordStart = getWordStart(wordIndex);
+        int wordEnd = getWordEnd(wordIndex);
 
-        return endRow > row;
+        int startRow = wordStart/lineLength;
+        int endRow = wordEnd/lineLength;
 
+        return startRow != endRow;
     }
 
     public int getWordWrapSplitIndex(int wordIndex) {
@@ -222,8 +267,6 @@ public class HackData {
         ArrayList<String> words = getWordSet(difficulty);
         int wordCount = getWordCount(difficulty);
         Random rand = new Random();
-        String[] used = new String[wordCount];
-        int usedIndex = 0;
 
         while (wordCount > 0) {
             String word = words.get(rand.nextInt(words.size()));
@@ -231,14 +274,13 @@ public class HackData {
             if (!allText.contains(word)) {
                 putWordInAllText(word);
 
-                used[usedIndex] = word;
-                usedIndex++;
+                usedWords.add(word);
 
                 wordCount--;
             }
         }
 
-        solution = used[rand.nextInt(used.length)];
+        solution = usedWords.get(rand.nextInt(usedWords.size()));
     }
 
     private void putWordInAllText(String word) {
@@ -286,7 +328,7 @@ public class HackData {
             case DIFF_VERY_HARD:
                 return veryHardWords;
             default:
-                return null;
+                throw new HackDataException("No such wordSet with difficulty enum " + difficulty);
         }
     }
 

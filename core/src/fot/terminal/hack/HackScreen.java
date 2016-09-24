@@ -328,7 +328,13 @@ public class HackScreen extends TerminalScreen {
             return true;
         } else if (keycode == Input.Keys.ENTER || keycode == Input.Keys.SPACE || keycode == Input.Keys.E) {
             if (data.isBracketGroup(index)) {
-                //TODO: Implement bracket group clicking
+                addOutput("Removed dud: " + data.getBracketGroup(index));
+
+                data.removeDud(index);
+
+                setIndex(index);
+
+                //TODO: Implement allowance replenishment
             } else if (data.isWord(index)) {
                 //TODO: Implement solution checking
             } else { //Is normal char
@@ -362,29 +368,41 @@ public class HackScreen extends TerminalScreen {
     }
 
     private void right() {
-        //TODO: Implement column switching
-
         if (data.isWord(index)) {
-            if (data.getWordEnd(index) < data.length()) {
+            if (data.isWordWrapped(index) && index < HackData.lineLength*HackData.linesPerCol) { //Word is wrapped and index is in first column
+                setIndex(HackData.lineLength*HackData.linesPerCol + index - index%HackData.lineLength); //Set to same row in second column at x=0
+            } else if (data.getWordEnd(index) < data.length()) {
                 setIndex(data.getWordEnd(index));
             }
         } else {
-            if (index + 1 != data.length()) {
-                setIndex(index + 1);
+            if (index + 1 < data.length()) {
+                if (index%HackData.lineLength == HackData.lineLength-1) {
+                    if (index < HackData.lineLength*HackData.linesPerCol) {
+                        setIndex(HackData.lineLength*HackData.linesPerCol + index - index%HackData.lineLength); //Set to same row in second column at x=0
+                    }
+                } else {
+                    setIndex(index + 1);
+                }
             }
         }
     }
 
     private void left() {
-        //TODO: Implement column switching
-
         if (data.isWord(index)) {
-            if (data.getWordStart(index) > 0) {
+            if (data.isWordWrapped(index) && index >= HackData.lineLength*HackData.linesPerCol) { //Word is wrapped and index is in second column
+                setIndex(index - HackData.lineLength*HackData.linesPerCol + HackData.lineLength - index%HackData.lineLength - 1); //Set to same row in first column at x=HackData.lineLength
+            } else if (data.getWordStart(index) > 0) {
                 setIndex(data.getWordStart(index) - 1);
             }
         } else {
             if (index > 0) {
-                setIndex(index - 1);
+                if (index%HackData.lineLength == 0) { //Index on line is 0
+                    if (index >= HackData.lineLength*HackData.linesPerCol) {
+                        setIndex(index - HackData.lineLength * HackData.linesPerCol + HackData.lineLength - index % HackData.lineLength - 1); //Set to same row in first column at x=HackData.lineLength
+                    }
+                } else {
+                    setIndex(index - 1);
+                }
             }
         }
     }
