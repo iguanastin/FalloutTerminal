@@ -6,6 +6,7 @@ import fot.terminal.TerminalMain;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Random;
 import java.util.Scanner;
 
@@ -17,6 +18,9 @@ public class HackData {
     public static final int numChars = lineLength * linesPerCol * columns;
 
     private int difficulty;
+    private String solution;
+    private boolean usedReplenish = false;
+    private int attempts = 3;
 
     public static final int DIFF_VERY_EASY = 0;
     public static final int DIFF_EASY = 1;
@@ -54,12 +58,20 @@ public class HackData {
         return allText;
     }
 
+    public int getAttempts() {
+        return attempts;
+    }
+
+    public void useAttempt() {
+        attempts--;
+    }
+
     public String getLine(int row, int col) {
         if (col < 0 || col >= columns) {
-            throw new IndexOutOfBoundsException(col + " out of column bounds [0, " + (columns - 1) + "]");
+            throw new IndexOutOfBoundsException("Column " + col + " out of column bounds [0, " + (columns - 1) + "]");
         }
         if (row < 0 || row >= linesPerCol) {
-            throw new IndexOutOfBoundsException(col + " out of row bounds [0, " + (linesPerCol - 1) + "]");
+            throw new IndexOutOfBoundsException("Row " + row + " out of row bounds [0, " + (linesPerCol - 1) + "]");
         }
 
         int rowIndex = row;
@@ -77,10 +89,10 @@ public class HackData {
 
         int col = 0;
         if (charIndex >= lineLength * linesPerCol) col = 1;
-        int row = (charIndex - col * linesPerCol) / lineLength;
+        int row = (charIndex - col * linesPerCol * lineLength) / lineLength;
         String line = getLine(row, col).substring(charIndex % lineLength);
 
-        return line.contains(bracketEnds.charAt(bracketStarts.indexOf(line.charAt(0))) + "");
+        return line.contains(bracketEnds.charAt(bracketStarts.indexOf(allText.charAt(charIndex))) + "");
     }
 
     public int getBracketGroupEnd(int groupIndex) {
@@ -105,13 +117,60 @@ public class HackData {
             throw new HackDataException("Attempting to get non-word [index=" + wordIndex + "]");
         }
 
-        String word = "";
+        int wordBegin = getWordStart(wordIndex);
+        int wordEnd = getWordEnd(wordIndex);
 
-        while (wordIndex < allText.length() && Character.isLetter(allText.charAt(wordIndex))) {
-            word += allText.charAt(wordIndex);
+        return allText.substring(wordBegin, wordEnd);
+    }
+
+    public int getWordStart(int wordIndex) {
+        if (!isWord(wordIndex)) {
+            throw new HackDataException("Index " + wordIndex + " is not a word");
         }
 
-        return word;
+        while (wordIndex > 0 && Character.isLetter(allText.charAt(wordIndex-1))) {
+            wordIndex--;
+        }
+
+        return wordIndex;
+    }
+
+    public int getWordEnd(int wordIndex) {
+        if (!isWord(wordIndex)) {
+            throw new HackDataException("Index " + wordIndex + " is not a word");
+        }
+
+        while (wordIndex < allText.length() && Character.isLetter(allText.charAt(wordIndex))) {
+            wordIndex++;
+        }
+
+        return wordIndex;
+    }
+
+    public int getWordLength(int wordIndex) {
+        return getWord(wordIndex).length();
+    }
+
+    public char getChar(int i) {
+        if (i < 0 || i >= allText.length()) {
+            throw new ArrayIndexOutOfBoundsException("Bracket group out of bounds: " + i);
+        }
+
+        return allText.charAt(i);
+    }
+
+    public String getBracketGroup(int i) {
+        if (i < 0 || i >= allText.length()) {
+            throw new ArrayIndexOutOfBoundsException("Bracket group out of bounds: " + i);
+        } else if (!isBracketGroup(i)) {
+            throw new HackDataException("Index " + i + " is not a bracket group");
+        }
+
+        return allText.substring(i, getBracketGroupEnd(i)+1);
+    }
+
+    public int length() {
+        return allText.length();
     }
 
     public boolean isWordWrapped(int wordIndex) {
@@ -136,14 +195,21 @@ public class HackData {
     }
 
     public String getExpandedLine(int row, int col) {
-        String line = getLine(row, col);
+        return expandString(getLine(row, col));
+    }
+
+    public static String expandString(String str) {
         String work = "";
 
-        for (int i = 0; i < lineLength; i++) {
-            work += line.charAt(i) + " ";
+        for (int i = 0; i < str.length(); i++) {
+            work += str.charAt(i) + " ";
         }
 
-        return work.trim();
+        return work;
+    }
+
+    public String getSolution() {
+        return solution;
     }
 
     private void generateAllText() {
@@ -156,6 +222,8 @@ public class HackData {
         ArrayList<String> words = getWordSet(difficulty);
         int wordCount = getWordCount(difficulty);
         Random rand = new Random();
+        String[] used = new String[wordCount];
+        int usedIndex = 0;
 
         while (wordCount > 0) {
             String word = words.get(rand.nextInt(words.size()));
@@ -163,9 +231,14 @@ public class HackData {
             if (!allText.contains(word)) {
                 putWordInAllText(word);
 
+                used[usedIndex] = word;
+                usedIndex++;
+
                 wordCount--;
             }
         }
+
+        solution = used[rand.nextInt(used.length)];
     }
 
     private void putWordInAllText(String word) {

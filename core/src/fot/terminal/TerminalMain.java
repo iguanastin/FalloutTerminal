@@ -16,6 +16,7 @@ import fot.terminal.hack.HackScreen;
 import gui.Gui;
 
 import java.math.BigDecimal;
+import java.util.Arrays;
 
 public class TerminalMain extends ApplicationAdapter {
 
@@ -147,8 +148,8 @@ public class TerminalMain extends ApplicationAdapter {
 //        openScreen(screen);
 
         HackScreen screen = new HackScreen(this, HackData.DIFF_AVERAGE);
-        screen.addOutput("test output 1");
-        screen.addOutput("long line test here, should wrap at least once successfully");
+//        screen.addOutput("test output 1");
+//        screen.addOutput("long line test here, should wrap at least once successfully");
         openScreen(screen);
         //TODO: REMOVE ------------
 
@@ -244,7 +245,7 @@ public class TerminalMain extends ApplicationAdapter {
         param.size = 18;
         param.kerning = false;
         smallFont = gen.generateFont(param);
-        param.size = 24;
+        param.size = 32;
         mediumFont = gen.generateFont(param);
         param.size = 48;
         largeFont = gen.generateFont(param);

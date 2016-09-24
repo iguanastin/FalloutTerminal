@@ -1,9 +1,11 @@
 package fot.terminal.hack;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.utils.Array;
 import fot.actions.CountAction;
 import fot.actions.ScreenActionListener;
 import fot.terminal.TerminalAudio;
@@ -31,11 +33,11 @@ public class HackScreen extends TerminalScreen {
     private boolean drawFirstLine = true, drawSecondLine, drawAttemptsLine, drawContents, drawOutput, drawHexLines;
     private boolean allowInput;
 
-    private int attempts = 3;
     private HackData data;
     private HackScreenListener listener;
     private String[] output;
-    private String selected;
+    private String selected = "";
+    private int index = 0;
 
 
     public HackScreen(TerminalMain terminal, int difficulty) {
@@ -47,11 +49,39 @@ public class HackScreen extends TerminalScreen {
         generateHexValues();
 
         data = new HackData(difficulty);
-        output = new String[HackData.linesPerCol - 2];
+        output = new String[HackData.linesPerCol - 1];
+
+        setIndex(0);
+    }
+
+    public void setIndex(int i) {
+        if (i < 0 || i > data.length()) {
+            throw new ArrayIndexOutOfBoundsException("Index " + i + " out of bounds");
+        }
+
+        index = i;
+        selected = getSelection(i);
+
+        if (selected.length() == 1) {
+            TerminalAudio.playCharSingle();
+        } else {
+            TerminalAudio.playCharMultiple();
+        }
+    }
+
+    public String getSelection(int i) {
+        if (data.isBracketGroup(i)) {
+            return data.getBracketGroup(i);
+        } else if (data.isWord(i)) {
+            return data.getWord(i);
+        } else {
+            return data.getChar(i) + "";
+        }
     }
 
     public void addOutput(String msg) {
         if (msg.length() < OUTPUT_WIDTH - 1) {
+            shiftConsoleUp();
             output[0] = '>' + msg;
         } else {
             String work = msg;
@@ -72,8 +102,12 @@ public class HackScreen extends TerminalScreen {
         }
     }
 
+    public String[] getOutput() {
+        return output;
+    }
+
     private void shiftConsoleUp() {
-        for (int i = output.length - 1; i > 0; i++) {
+        for (int i = output.length - 1; i > 0; i--) {
             output[i] = output[i - 1];
         }
     }
@@ -151,6 +185,8 @@ public class HackScreen extends TerminalScreen {
 
         //Draw first line
         if (drawFirstLine) {
+            Gui.begin(batch);
+
             if (!firstLineCounter.isCompleted()) {
                 font.draw(batch, firstLine.substring(0, firstLineCounter.getCount()), EDGE_GAP, Gdx.graphics.getHeight() - EDGE_GAP - Gui.stutter);
             } else {
@@ -160,6 +196,8 @@ public class HackScreen extends TerminalScreen {
 
         //Draw second line
         if (drawSecondLine) {
+            Gui.begin(batch);
+
             if (!secondLineCounter.isCompleted()) {
                 font.draw(batch, secondLine.substring(0, secondLineCounter.getCount()), EDGE_GAP, Gdx.graphics.getHeight() - EDGE_GAP - font.getLineHeight() - Gui.stutter);
             } else {
@@ -169,14 +207,14 @@ public class HackScreen extends TerminalScreen {
 
         //Draw attempts line
         if (drawAttemptsLine) {
-            font.draw(batch, attempts + attemptsLine, EDGE_GAP, Gdx.graphics.getHeight() - EDGE_GAP - font.getLineHeight() * 3 - Gui.stutter);
+            font.draw(batch, data.getAttempts() + attemptsLine, EDGE_GAP, Gdx.graphics.getHeight() - EDGE_GAP - font.getLineHeight() * 3 - Gui.stutter);
 
             Gui.end(batch);
             Gui.begin(Gui.sr, ShapeRenderer.ShapeType.Filled, Gui.trim_color);
 
             //Draw attempt squares
-            for (int i = 0; i < attempts; i++) {
-                Gui.sr.rect(EDGE_GAP + Gui.getStringPixelWidth(font, attempts + attemptsLine) + (font.getLineHeight() + 10) * (i), Gdx.graphics.getHeight() - EDGE_GAP - font.getLineHeight() * 4 + 5 - Gui.stutter, font.getLineHeight(), font.getLineHeight());
+            for (int i = 0; i < data.getAttempts(); i++) {
+                Gui.sr.rect(EDGE_GAP + Gui.getStringPixelWidth(font, data.getAttempts() + attemptsLine) + (font.getLineHeight() + 10) * (i), Gdx.graphics.getHeight() - EDGE_GAP - font.getLineHeight() * 4 + 5 - Gui.stutter, font.getLineHeight(), font.getLineHeight());
             }
 
             Gui.end(Gui.sr);
@@ -185,6 +223,8 @@ public class HackScreen extends TerminalScreen {
 
         //Draw hex values
         if (drawHexLines) {
+            Gui.begin(batch);
+
             for (int i = 0; i < hexLineCounter.getCount(); i++) {
                 if (i < HackData.linesPerCol) {
                     font.draw(batch, hexes[i], EDGE_GAP, Gdx.graphics.getHeight() - EDGE_GAP - font.getLineHeight() * (5 + i) - Gui.stutter);
@@ -196,16 +236,155 @@ public class HackScreen extends TerminalScreen {
 
         //Draw contents
         if (drawContents) {
-            //Draw left column
-            for (int i = 0; i < HackData.linesPerCol; i++) {
-                font.draw(batch, data.getExpandedLine(i, 0), EDGE_GAP + Gui.getStringPixelWidth(font, hexes[0]) + 20, Gdx.graphics.getHeight() - EDGE_GAP - font.getLineHeight() * (5 + i) - Gui.stutter);
-            }
+            drawContents(batch, font);
         }
 
-        //Draw output
         if (drawOutput) {
+            Gui.begin(batch);
+
+            font.setColor(Gui.text_color);
+            //Draw output
             for (int i = 0; i < output.length; i++) {
-                font.draw(batch, output[i], EDGE_GAP + HEX_GAP * 2 + 20, Gdx.graphics.getHeight() - EDGE_GAP - font.getLineHeight() * (output.length - i));
+                if (output[i] != null) {
+                    font.draw(batch, output[i], EDGE_GAP + HEX_GAP * 2 + 20, Gdx.graphics.getHeight() - EDGE_GAP - font.getLineHeight() * (output.length - i + 4) - Gui.stutter);
+                }
+            }
+
+            //Draw selection line
+            font.setColor(Gui.text_color);
+            if (selected == null || selected.isEmpty()) {
+                selected = ">";
+            }
+            font.draw(batch, ">" + selected, EDGE_GAP + HEX_GAP * 2 + 20, Gdx.graphics.getHeight() - EDGE_GAP - font.getLineHeight() * (output.length + 5) - Gui.stutter);
+        }
+    }
+
+    private void drawContents(Batch batch, BitmapFont font) {
+        Gui.begin(batch);
+        for (int i = 0; i < HackData.linesPerCol; i++) {
+            font.draw(batch, data.getExpandedLine(i, 0), EDGE_GAP + Gui.getStringPixelWidth(font, hexes[0]) + 20, Gdx.graphics.getHeight() - EDGE_GAP - font.getLineHeight() * (5 + i) - Gui.stutter);
+            font.draw(batch, data.getExpandedLine(i, 1), EDGE_GAP + Gui.getStringPixelWidth(font, hexes[0]) + 20 + HEX_GAP, Gdx.graphics.getHeight() - EDGE_GAP - font.getLineHeight() * (5 + i) - Gui.stutter);
+        }
+
+        drawContentSelection(batch, font);
+    }
+
+    private void drawContentSelection(Batch batch, BitmapFont font) {
+        Gui.end(batch);
+
+        int x = index % HackData.lineLength, y = index / HackData.lineLength;
+        int col = 0;
+        if (y >= HackData.linesPerCol) {
+            col = 1;
+            y -= HackData.linesPerCol;
+        }
+        if (data.isWord(index)) {
+            x = data.getWordStart(index) % HackData.lineLength;
+        }
+
+        //Calculate selection render position
+        int renderX = EDGE_GAP + (int) Gui.getStringPixelWidth(font, hexes[0]) + 20 + (int) Gui.getStringPixelWidth(font, data.getLine(y, col).substring(0, x))*2;
+        int renderY = Gdx.graphics.getHeight() - EDGE_GAP - (int) font.getLineHeight() * (5 + y) - Gui.stutter;
+        if (col == 1) renderX += HEX_GAP;
+
+        Gui.begin(Gui.sr, ShapeRenderer.ShapeType.Filled, Gui.trim_color);
+        //Draw overlay based on selection type
+        if (data.isBracketGroup(index)) {
+            Gui.sr.rect(renderX - 5, renderY + 5, Gui.getStringPixelWidth(font, data.getBracketGroup(index))*2, -font.getLineHeight());
+        } else if (data.isWord(index)) {
+            //TODO: Implement word wrapping rendering
+
+            Gui.sr.rect(renderX - 5, renderY + 5, Gui.getStringPixelWidth(font, data.getWord(index))*2, -font.getLineHeight());
+        } else {
+            Gui.sr.rect(renderX - 5, renderY + 5, Gui.getStringPixelWidth(font, "X "), -font.getLineHeight());
+        }
+
+        Gui.end(Gui.sr);
+        Gui.begin(batch);
+        font.setColor(Gui.alternate_color);
+
+        if (data.isWord(index)) {
+            font.draw(batch, HackData.expandString(selected), renderX, renderY);
+
+            //TODO: Implement proper rendering of wrapped words
+        } else {
+            font.draw(batch, HackData.expandString(selected), renderX, renderY);
+        }
+    }
+
+    @Override
+    public boolean keyDown(int keycode) {
+        if (keycode == Input.Keys.LEFT || keycode == Input.Keys.A) {
+            left();
+            return true;
+        } else if (keycode == Input.Keys.RIGHT || keycode == Input.Keys.D) {
+            right();
+            return true;
+        } else if (keycode == Input.Keys.UP || keycode == Input.Keys.W) {
+            up();
+            return true;
+        } else if (keycode == Input.Keys.DOWN || keycode == Input.Keys.S) {
+            down();
+            return true;
+        } else if (keycode == Input.Keys.ENTER || keycode == Input.Keys.SPACE || keycode == Input.Keys.E) {
+            if (data.isBracketGroup(index)) {
+                //TODO: Implement bracket group clicking
+            } else if (data.isWord(index)) {
+                //TODO: Implement solution checking
+            } else { //Is normal char
+                TerminalAudio.playPassBad();
+
+                addOutput("Invalid charset: " + selected);
+            }
+
+            TerminalAudio.playButtonClick();
+        } else if (keycode == Input.Keys.ESCAPE) {
+            if (listener != null) {
+                listener.hackCancel();
+            }
+
+            TerminalAudio.playMenuCancel();
+        }
+
+        return false;
+    }
+
+    private void down() {
+        if (index < data.length() - HackData.lineLength) {
+            setIndex(index + HackData.lineLength);
+        }
+    }
+
+    private void up() {
+        if (index >= HackData.lineLength) {
+            setIndex(index - HackData.lineLength);
+        }
+    }
+
+    private void right() {
+        //TODO: Implement column switching
+
+        if (data.isWord(index)) {
+            if (data.getWordEnd(index) < data.length()) {
+                setIndex(data.getWordEnd(index));
+            }
+        } else {
+            if (index + 1 != data.length()) {
+                setIndex(index + 1);
+            }
+        }
+    }
+
+    private void left() {
+        //TODO: Implement column switching
+
+        if (data.isWord(index)) {
+            if (data.getWordStart(index) > 0) {
+                setIndex(data.getWordStart(index) - 1);
+            }
+        } else {
+            if (index > 0) {
+                setIndex(index - 1);
             }
         }
     }
