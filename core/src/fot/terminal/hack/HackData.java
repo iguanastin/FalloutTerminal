@@ -6,46 +6,100 @@ import fot.terminal.TerminalMain;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Random;
 import java.util.Scanner;
 
+/**
+ *
+ *
+ * @author austinbt
+ */
 public class HackData {
-    public static final int lineLength = 12;
-    public static final int linesPerCol = 18;
-    public static final int columns = 2;
 
-    public static final int numChars = lineLength * linesPerCol * columns;
 
+    /**
+     * Number of characters that are in each line in this data
+     */
+    public static final int LINE_LENGTH = 12;
+    /**
+     * Number of total lines in each column
+     */
+    public static final int LINES_PER_COL = 18;
+    /**
+     * Number of columns in this data
+     */
+    public static final int COLUMNS = 2;
+
+    /**
+     * Total number of characters contained in this data
+     */
+    public static final int NUM_CHARS = LINE_LENGTH * LINES_PER_COL * COLUMNS;
+
+    //Difficulty enum --------------------------------------------------------------------------------------------------
+    /**
+     * Easiest difficulty
+     */
     public static final int DIFF_VERY_EASY = 0;
+    /**
+     * Easy difficulty
+     */
     public static final int DIFF_EASY = 1;
+    /**
+     * Average difficulty
+     */
     public static final int DIFF_AVERAGE = 2;
+    /**
+     * Hard difficulty
+     */
     public static final int DIFF_HARD = 3;
+    /**
+     * Hardest difficulty
+     */
     public static final int DIFF_VERY_HARD = 4;
+    //------------------------------------------------------------------------------------------------------------------
 
+    //Random filler characters
     private static final char[] randomChars = {'{', '}', '(', ')', '[', ']', '<', '>', '?', '-', '_', '\'', ';', '^', '*', '\\', '/', '!', '+', '#', '$', '%', '.', '|', ':', '"', '=', ','};
+    //Characters that can be bracket group beginners
     private static final String bracketStarts = "([{<";
+    //Corresponding bracket group enders. Each type of bracket end must match the same index as its type in bracketStarts
     private static final String bracketEnds = ")]}>";
 
+    //Wordsets ---------------------------------------------------------------------------------------------------------
     private final static ArrayList<String> easyWords = new ArrayList<String>();
     private final static ArrayList<String> veryEasyWords = new ArrayList<String>();
     private final static ArrayList<String> averageWords = new ArrayList<String>();
     private final static ArrayList<String> hardWords = new ArrayList<String>();
     private final static ArrayList<String> veryHardWords = new ArrayList<String>();
+    //------------------------------------------------------------------------------------------------------------------
 
+    //Maximum number of possible attempts
     private static final int MAX_ATTEMPTS = 3;
 
 
+    //The difficulty of this hack
     private int difficulty;
+    //The solution of this hack
     private String solution;
+    //Whether or not a bracket group has replenished attempts allowance yet.
+    //Allowance can only be replenished once per hack
     private boolean usedReplenish = false;
+    //Password attempts remaining
     private int attempts = MAX_ATTEMPTS;
 
+    //Words that are currently in this data
     private ArrayList<String> usedWords = new ArrayList<String>();
+    //Bracket group indexes that have been used
     private ArrayList<Integer> usedBracketGroups = new ArrayList<Integer>();
 
+    //All contents of this data
     private String allText;
 
+    /**
+     * Constructs a HackData object and generates the contents from the given difficulty enum
+     *
+     * @param difficulty Difficulty to construct data with
+     */
     public HackData(int difficulty) {
         if (difficulty != DIFF_VERY_EASY && difficulty != DIFF_EASY && difficulty != DIFF_AVERAGE && difficulty != DIFF_HARD && difficulty != DIFF_VERY_HARD) {
             throw new HackDataException("Invalid difficulty enum: " + difficulty);
@@ -60,6 +114,11 @@ public class HackData {
         generateAllText();
     }
 
+    /**
+     * Replaces a random word that isn't the solution in this data with "." characters and marks the bracket group index as used.
+     *
+     * @param bracketGroupIndex Index of an existing, unused bracket group within this data
+     */
     public void removeDud(int bracketGroupIndex) {
         if (usedWords.size() <= 1) {
             return;
@@ -78,12 +137,22 @@ public class HackData {
         allText = allText.replace(toRemove, replacement);
     }
 
+    /**
+     * Allowance replenishment can only be used once per data
+     *
+     * @return True if the single allowance replenish available to the data has been used.
+     */
     public boolean allowanceReplenishUsed() {
         return usedReplenish;
     }
 
+    /**
+     * Replenishes the attempt allowance for this data and marks the allowance replenishment as used.
+     *
+     * @return True if allowance was replenished, false if it has already been replenished before.
+     */
     public boolean replenishAllowance() {
-        if (!usedReplenish) {
+        if (!allowanceReplenishUsed()) {
             usedReplenish = true;
 
             attempts = MAX_ATTEMPTS;
@@ -94,35 +163,74 @@ public class HackData {
         return false;
     }
 
+    /**
+     * Gets the String representing all the contents of this data
+     *
+     * @return The String of all contents of this data of length NUM_CHARS.
+     */
     public String getAllText() {
         return allText;
     }
 
+    /**
+     *
+     * @return The number of password attempts remaining
+     */
     public int getAttempts() {
         return attempts;
     }
 
+    /**
+     * Consumes one attempt
+     *
+     * @throws HackDataException When there are no remaining attempts
+     */
     public void useAttempt() {
-        attempts--;
+        if (attempts > 0) {
+            attempts--;
+        } else {
+            throw new HackDataException("Trying to use an attempt when there are none remaining");
+        }
     }
 
+    /**
+     * Retrieves a given line of length LINE_LENGTH
+     *
+     * @param row The vertical row index of the line
+     * @param col The column the line is in
+     * @return The line at row, col of length LINE_LENGTH
+     * @throws IndexOutOfBoundsException When (col <0 || col >=COLUMNS). Or, when (row < 0 || row >=LINES_PER_COL)
+     */
     public String getLine(int row, int col) {
-        if (col < 0 || col >= columns) {
-            throw new IndexOutOfBoundsException("Column " + col + " out of column bounds [0, " + (columns - 1) + "]");
+        if (col < 0 || col >= COLUMNS) {
+            throw new IndexOutOfBoundsException("Column " + col + " out of column bounds [0, " + (COLUMNS - 1) + "]");
         }
-        if (row < 0 || row >= linesPerCol) {
-            throw new IndexOutOfBoundsException("Row " + row + " out of row bounds [0, " + (linesPerCol - 1) + "]");
+        if (row < 0 || row >= LINES_PER_COL) {
+            throw new IndexOutOfBoundsException("Row " + row + " out of row bounds [0, " + (LINES_PER_COL - 1) + "]");
         }
 
         int rowIndex = row;
-        if (col == 1) rowIndex += linesPerCol;
+        if (col == 1) rowIndex += LINES_PER_COL;
 
-        int index = rowIndex * lineLength;
+        int index = rowIndex * LINE_LENGTH;
 
-        return allText.substring(index, index + lineLength);
+        return allText.substring(index, index + LINE_LENGTH);
     }
 
+    /**
+     * Checks a given index and determines whether or not it is a valid, unused bracket group.
+     *
+     * Valid bracket groups begin with a valid bracket start char, and has a bracket end char of the same type in the same line.
+     *
+     * @param charIndex Index of the contents to be checked
+     * @return True if it is a valid, unused bracket group, false otherwise.
+     * @throws IndexOutOfBoundsException When charIndex < 0 || charIndex >= NUM_CHARS
+     */
     public boolean isBracketGroup(int charIndex) {
+        if (charIndex < 0 || charIndex >= length()) {
+            throw new IndexOutOfBoundsException("Char index out of range: " + charIndex);
+        }
+
         if (!bracketStarts.contains(allText.charAt(charIndex) + "")) {
             return false;
         }
@@ -132,13 +240,20 @@ public class HackData {
         }
 
         int col = 0;
-        if (charIndex >= lineLength * linesPerCol) col = 1;
-        int row = (charIndex - col * linesPerCol * lineLength) / lineLength;
-        String line = getLine(row, col).substring(charIndex % lineLength);
+        if (charIndex >= LINE_LENGTH * LINES_PER_COL) col = 1;
+        int row = (charIndex - col * LINES_PER_COL * LINE_LENGTH) / LINE_LENGTH;
+        String line = getLine(row, col).substring(charIndex % LINE_LENGTH);
 
         return line.contains(bracketEnds.charAt(bracketStarts.indexOf(allText.charAt(charIndex))) + "");
     }
 
+    /**
+     * Finds the index of the end of the given bracket group.
+     *
+     * @param groupIndex Index of the group to find the end index of
+     * @return The index of the end of the bracket group
+     * @throws HackDataException When given index is not a bracket group
+     */
     public int getBracketGroupEnd(int groupIndex) {
         if (isBracketGroup(groupIndex)) {
             char toFind = bracketEnds.charAt(bracketStarts.indexOf(allText.charAt(groupIndex)));
@@ -148,14 +263,39 @@ public class HackData {
         }
     }
 
+    /**
+     *
+     * @return The difficulty enum of this hack
+     */
     public int getDifficulty() {
         return difficulty;
     }
 
+    /**
+     * Determines whether the given index references a word in the data.
+     *
+     * If the index is in the middle of the word this method considers it to be referencing the word.
+     *
+     * @param charIndex Index to test
+     * @return True if the given index is part of a word
+     * @throws HackDataException When charIndex < 0 || charIndex >= NUM_CHARS
+     */
     public boolean isWord(int charIndex) {
-        return Character.isLetter(allText.charAt(charIndex));
+        if (charIndex >= 0 && charIndex < length()) {
+            return Character.isLetter(allText.charAt(charIndex));
+        } else {
+            throw new IndexOutOfBoundsException("Char index out of bounds: " + charIndex);
+        }
     }
 
+    /**
+     * Retrieves a full word from the given index.
+     *
+     * If the index given is in the middle of the word, the whole word will still be retrieved.
+     *
+     * @param wordIndex
+     * @return
+     */
     public String getWord(int wordIndex) {
         if (!isWord(wordIndex)) {
             throw new HackDataException("Attempting to get non-word [index=" + wordIndex + "]");
@@ -167,7 +307,18 @@ public class HackData {
         return allText.substring(wordBegin, wordEnd);
     }
 
+    /**
+     * Finds the index that represents the start of the word.
+     *
+     * @param wordIndex Any index that references a character in the word.
+     * @return The starting index of the given word
+     * @throws HackDataException When index is not a word
+     * @throws IndexOutOfBoundsException When index < 0 || index >= NUM_CHARS
+     */
     public int getWordStart(int wordIndex) {
+        if (wordIndex < 0 || wordIndex >= length()) {
+            throw new IndexOutOfBoundsException("Word index out of bounds: " + wordIndex);
+        }
         if (!isWord(wordIndex)) {
             throw new HackDataException("Index " + wordIndex + " is not a word");
         }
@@ -179,7 +330,18 @@ public class HackData {
         return wordIndex;
     }
 
+    /**
+     * Finds the ending index of a word.
+     *
+     * @param wordIndex An index representing any character in a word
+     * @return The end index of the word such that, if substring was used with getWordStart and getWordEnd, would get the entire word.
+     * @throws HackDataException When index does not represent a word.
+     * @throws IndexOutOfBoundsException When wordIndex < 0 || wordIndex >= NUM_CHARS
+     */
     public int getWordEnd(int wordIndex) {
+        if (wordIndex < 0 || wordIndex >= length()) {
+            throw new IndexOutOfBoundsException("Word index out of bounds: " + wordIndex);
+        }
         if (!isWord(wordIndex)) {
             throw new HackDataException("Index " + wordIndex + " is not a word");
         }
@@ -191,21 +353,49 @@ public class HackData {
         return wordIndex;
     }
 
+    /**
+     * Finds the length of the word at the given index
+     *
+     * @param wordIndex The index of the word to test length of. Can be any index within the word.
+     * @return Length of the given word.
+     * @throws HackDataException When index does not reference a word.
+     * @throws IndexOutOfBoundsException When index < 0 || index >= NUM_CHARS
+     */
     public int getWordLength(int wordIndex) {
+        if (wordIndex < 0 || wordIndex >= length()) {
+            throw new IndexOutOfBoundsException("Word index out of bounds: " + wordIndex);
+        }
+        if (!isWord(wordIndex)) {
+            throw new HackDataException("Index " + wordIndex + " does not reference a word");
+        }
         return getWord(wordIndex).length();
     }
 
+    /**
+     * Retrieves a character at a given index.
+     *
+     * @param i Index of character to retrieve.
+     * @return The character at index i in the data.
+     * @throws IndexOutOfBoundsException When index < 0 || index >= NUM_CHARS
+     */
     public char getChar(int i) {
         if (i < 0 || i >= allText.length()) {
-            throw new ArrayIndexOutOfBoundsException("Bracket group out of bounds: " + i);
+            throw new IndexOutOfBoundsException("Index out of bounds: " + i);
         }
 
         return allText.charAt(i);
     }
 
+    /**
+     * Retrieves the bracket group at the given index.
+     *
+     * @param i Index of bracket group
+     * @return The entire bracket group
+     * @throws IndexOutOfBoundsException When i < 0 || i >= NUM_CHARS
+     */
     public String getBracketGroup(int i) {
-        if (i < 0 || i >= allText.length()) {
-            throw new ArrayIndexOutOfBoundsException("Bracket group out of bounds: " + i);
+        if (i < 0 || i >= length()) {
+            throw new IndexOutOfBoundsException("Bracket group out of bounds: " + i);
         } else if (!isBracketGroup(i)) {
             throw new HackDataException("Index " + i + " is not a bracket group");
         }
@@ -213,30 +403,40 @@ public class HackData {
         return allText.substring(i, getBracketGroupEnd(i)+1);
     }
 
+    /**
+     *
+     * @return The number of chars in this data's contents
+     */
     public int length() {
         return allText.length();
     }
 
+    /**
+     * Tests whether a word is placed at an index that would require it to be rendered as wrapped.
+     *
+     * @param wordIndex Index of the word
+     * @return True if (word length + line index > LINE_LENGTH), false otherwise
+     * @throws HackDataException When given index does not reference a word
+     * @throws IndexOutOfBoundsException When index < 0 || index >= NUM_CHARS
+     */
     public boolean isWordWrapped(int wordIndex) {
         if (!isWord(wordIndex)) {
             throw new HackDataException("Checking wrap of non-word [index=" + wordIndex + "]");
         }
 
         int wordStart = getWordStart(wordIndex);
-        int wordEnd = getWordEnd(wordIndex);
+        int wordLength = getWordEnd(wordIndex) - wordStart;
 
-        int startRow = wordStart/lineLength;
-        int endRow = wordEnd/lineLength;
-
-        return startRow != endRow;
+        return wordLength + wordStart%LINE_LENGTH > LINE_LENGTH;
     }
 
+    //TODO: REWRITE
     public int getWordWrapSplitIndex(int wordIndex) {
         if (!isWordWrapped(wordIndex)) {
             throw new HackDataException("Attempting to get wrap split index of non-word [index=" + wordIndex + "]");
         }
 
-        return wordIndex - wordIndex % lineLength + lineLength;
+        return wordIndex - wordIndex % LINE_LENGTH + LINE_LENGTH;
     }
 
     public String getExpandedLine(int row, int col) {
@@ -287,7 +487,7 @@ public class HackData {
         Random rand = new Random();
 
         while (true) {
-            int pos = rand.nextInt(numChars - word.length());
+            int pos = rand.nextInt(NUM_CHARS - word.length());
 
             if (!overlapsOtherWord(word, pos)) {
                 insertWord(word, pos);
@@ -351,7 +551,7 @@ public class HackData {
 
     private void randomizeJunkAllText() {
         allText = "";
-        for (int i = 0; i < numChars; i++) {
+        for (int i = 0; i < NUM_CHARS; i++) {
             allText += randomChars[(int)(Math.random()*randomChars.length)];
         }
     }

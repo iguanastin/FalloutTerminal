@@ -5,7 +5,6 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
-import com.badlogic.gdx.utils.Array;
 import fot.actions.CountAction;
 import fot.actions.ScreenActionListener;
 import fot.terminal.TerminalAudio;
@@ -28,7 +27,7 @@ public class HackScreen extends TerminalScreen {
     private final String secondLine = "ENTER PASSWORD NOW";
     private final String attemptsLine = " ATTEMPT(S) LEFT: ";
 
-    private String[] hexes = new String[HackData.linesPerCol * 2];
+    private String[] hexes = new String[HackData.LINES_PER_COL * 2];
 
     private boolean drawFirstLine = true, drawSecondLine, drawAttemptsLine, drawContents, drawOutput, drawHexLines;
     private boolean allowInput;
@@ -49,7 +48,7 @@ public class HackScreen extends TerminalScreen {
         generateHexValues();
 
         data = new HackData(difficulty);
-        output = new String[HackData.linesPerCol - 1];
+        output = new String[HackData.LINES_PER_COL - 1];
 
         setIndex(0);
     }
@@ -156,7 +155,7 @@ public class HackScreen extends TerminalScreen {
         });
         addAction(secondLineCounter);
 
-        hexLineCounter = new CountAction(HackData.linesPerCol * 2);
+        hexLineCounter = new CountAction(HackData.LINES_PER_COL * 2);
         hexLineCounter.setListener(new ScreenActionListener() {
             @Override
             public void actionCompleted() {
@@ -168,7 +167,7 @@ public class HackScreen extends TerminalScreen {
 
             @Override
             public void actionUpdated() {
-                if (hexLineCounter.getCount() == HackData.linesPerCol) TerminalAudio.playCharScroll();
+                if (hexLineCounter.getCount() == HackData.LINES_PER_COL) TerminalAudio.playCharScroll();
             }
         });
         addAction(hexLineCounter);
@@ -226,10 +225,10 @@ public class HackScreen extends TerminalScreen {
             Gui.begin(batch);
 
             for (int i = 0; i < hexLineCounter.getCount(); i++) {
-                if (i < HackData.linesPerCol) {
+                if (i < HackData.LINES_PER_COL) {
                     font.draw(batch, hexes[i], EDGE_GAP, Gdx.graphics.getHeight() - EDGE_GAP - font.getLineHeight() * (5 + i) - Gui.stutter);
                 } else {
-                    font.draw(batch, hexes[i], EDGE_GAP + HEX_GAP, Gdx.graphics.getHeight() - EDGE_GAP - font.getLineHeight() * (5 + i - HackData.linesPerCol) - Gui.stutter);
+                    font.draw(batch, hexes[i], EDGE_GAP + HEX_GAP, Gdx.graphics.getHeight() - EDGE_GAP - font.getLineHeight() * (5 + i - HackData.LINES_PER_COL) - Gui.stutter);
                 }
             }
         }
@@ -261,7 +260,7 @@ public class HackScreen extends TerminalScreen {
 
     private void drawContents(Batch batch, BitmapFont font) {
         Gui.begin(batch);
-        for (int i = 0; i < HackData.linesPerCol; i++) {
+        for (int i = 0; i < HackData.LINES_PER_COL; i++) {
             font.draw(batch, data.getExpandedLine(i, 0), EDGE_GAP + Gui.getStringPixelWidth(font, hexes[0]) + 20, Gdx.graphics.getHeight() - EDGE_GAP - font.getLineHeight() * (5 + i) - Gui.stutter);
             font.draw(batch, data.getExpandedLine(i, 1), EDGE_GAP + Gui.getStringPixelWidth(font, hexes[0]) + 20 + HEX_GAP, Gdx.graphics.getHeight() - EDGE_GAP - font.getLineHeight() * (5 + i) - Gui.stutter);
         }
@@ -272,14 +271,14 @@ public class HackScreen extends TerminalScreen {
     private void drawContentSelection(Batch batch, BitmapFont font) {
         Gui.end(batch);
 
-        int x = index % HackData.lineLength, y = index / HackData.lineLength;
+        int x = index % HackData.LINE_LENGTH, y = index / HackData.LINE_LENGTH;
         int col = 0;
-        if (y >= HackData.linesPerCol) {
+        if (y >= HackData.LINES_PER_COL) {
             col = 1;
-            y -= HackData.linesPerCol;
+            y -= HackData.LINES_PER_COL;
         }
         if (data.isWord(index)) {
-            x = data.getWordStart(index) % HackData.lineLength;
+            x = data.getWordStart(index) % HackData.LINE_LENGTH;
         }
 
         //Calculate selection render position
@@ -314,6 +313,10 @@ public class HackScreen extends TerminalScreen {
 
     @Override
     public boolean keyDown(int keycode) {
+        if (!allowInput) {
+            return false;
+        }
+
         if (keycode == Input.Keys.LEFT || keycode == Input.Keys.A) {
             left();
             return true;
@@ -327,58 +330,66 @@ public class HackScreen extends TerminalScreen {
             down();
             return true;
         } else if (keycode == Input.Keys.ENTER || keycode == Input.Keys.SPACE || keycode == Input.Keys.E) {
-            if (data.isBracketGroup(index)) {
-                addOutput("Removed dud: " + data.getBracketGroup(index));
-
-                data.removeDud(index);
-
-                setIndex(index);
-
-                //TODO: Implement allowance replenishment
-            } else if (data.isWord(index)) {
-                //TODO: Implement solution checking
-            } else { //Is normal char
-                TerminalAudio.playPassBad();
-
-                addOutput("Invalid charset: " + selected);
-            }
-
-            TerminalAudio.playButtonClick();
-        } else if (keycode == Input.Keys.ESCAPE) {
-            if (listener != null) {
-                listener.hackCancel();
-            }
-
-            TerminalAudio.playMenuCancel();
+            accept();
+        } else if (keycode == Input.Keys.ESCAPE || keycode == Input.Keys.BACKSPACE) {
+            cancel();
         }
 
         return false;
     }
 
+    private void cancel() {
+        if (listener != null) {
+            listener.hackCancel();
+        }
+
+        TerminalAudio.playMenuCancel();
+    }
+
+    private void accept() {
+        if (data.isBracketGroup(index)) {
+            addOutput("Removed dud: " + data.getBracketGroup(index));
+
+            data.removeDud(index);
+
+            setIndex(index);
+
+            //TODO: Implement allowance replenishment
+        } else if (data.isWord(index)) {
+            //TODO: Implement solution checking
+        } else { //Is normal char
+            TerminalAudio.playPassBad();
+
+            addOutput("Invalid charset: " + selected);
+        }
+
+        TerminalAudio.playButtonClick();
+    }
+
     private void down() {
-        if (index < data.length() - HackData.lineLength) {
-            setIndex(index + HackData.lineLength);
+        if (index < data.length() - HackData.LINE_LENGTH) {
+            setIndex(index + HackData.LINE_LENGTH);
         }
     }
 
     private void up() {
-        if (index >= HackData.lineLength) {
-            setIndex(index - HackData.lineLength);
+        if (index >= HackData.LINE_LENGTH) {
+            setIndex(index - HackData.LINE_LENGTH);
         }
     }
 
     private void right() {
         if (data.isWord(index)) {
-            if (data.isWordWrapped(index) && index < HackData.lineLength*HackData.linesPerCol) { //Word is wrapped and index is in first column
-                setIndex(HackData.lineLength*HackData.linesPerCol + index - index%HackData.lineLength); //Set to same row in second column at x=0
+            if (data.isWordWrapped(index) && index < HackData.LINE_LENGTH *HackData.LINES_PER_COL) { //Word is wrapped and index is in first column
+                setIndex(HackData.LINE_LENGTH *HackData.LINES_PER_COL + index - index%HackData.LINE_LENGTH); //Set to same row in second column at x=0
             } else if (data.getWordEnd(index) < data.length()) {
                 setIndex(data.getWordEnd(index));
             }
         } else {
             if (index + 1 < data.length()) {
-                if (index%HackData.lineLength == HackData.lineLength-1) {
-                    if (index < HackData.lineLength*HackData.linesPerCol) {
-                        setIndex(HackData.lineLength*HackData.linesPerCol + index - index%HackData.lineLength); //Set to same row in second column at x=0
+                if (index%HackData.LINE_LENGTH == HackData.LINE_LENGTH -1) {
+                    if (index < HackData.LINE_LENGTH *HackData.LINES_PER_COL) {
+                        setIndex(HackData.LINE_LENGTH *HackData.LINES_PER_COL + index - index%HackData.LINE_LENGTH); //Set to same row in second column at x=0
                     }
                 } else {
                     setIndex(index + 1);
@@ -389,16 +400,16 @@ public class HackScreen extends TerminalScreen {
 
     private void left() {
         if (data.isWord(index)) {
-            if (data.isWordWrapped(index) && index >= HackData.lineLength*HackData.linesPerCol) { //Word is wrapped and index is in second column
-                setIndex(index - HackData.lineLength*HackData.linesPerCol + HackData.lineLength - index%HackData.lineLength - 1); //Set to same row in first column at x=HackData.lineLength
+            if (data.isWordWrapped(index) && index >= HackData.LINE_LENGTH *HackData.LINES_PER_COL) { //Word is wrapped and index is in second column
+                setIndex(index - HackData.LINE_LENGTH *HackData.LINES_PER_COL + HackData.LINE_LENGTH - index%HackData.LINE_LENGTH - 1); //Set to same row in first column at x=HackData.LINE_LENGTH
             } else if (data.getWordStart(index) > 0) {
                 setIndex(data.getWordStart(index) - 1);
             }
         } else {
             if (index > 0) {
-                if (index%HackData.lineLength == 0) { //Index on line is 0
-                    if (index >= HackData.lineLength*HackData.linesPerCol) {
-                        setIndex(index - HackData.lineLength * HackData.linesPerCol + HackData.lineLength - index % HackData.lineLength - 1); //Set to same row in first column at x=HackData.lineLength
+                if (index%HackData.LINE_LENGTH == 0) { //Index on line is 0
+                    if (index >= HackData.LINE_LENGTH *HackData.LINES_PER_COL) {
+                        setIndex(index - HackData.LINE_LENGTH * HackData.LINES_PER_COL + HackData.LINE_LENGTH - index % HackData.LINE_LENGTH - 1); //Set to same row in first column at x=HackData.LINE_LENGTH
                     }
                 } else {
                     setIndex(index - 1);
