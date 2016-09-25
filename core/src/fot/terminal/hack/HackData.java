@@ -423,6 +423,9 @@ public class HackData {
         if (!isWord(wordIndex)) {
             throw new HackDataException("Checking wrap of non-word [index=" + wordIndex + "]");
         }
+        if (wordIndex < 0 || wordIndex >= length()) {
+            throw new IndexOutOfBoundsException("Index out of bounds: " + wordIndex);
+        }
 
         int wordStart = getWordStart(wordIndex);
         int wordLength = getWordEnd(wordIndex) - wordStart;
@@ -430,19 +433,48 @@ public class HackData {
         return wordLength + wordStart%LINE_LENGTH > LINE_LENGTH;
     }
 
-    //TODO: REWRITE
+    /**
+     * Finds the index that is the wrap index for the given word.
+     *
+     * @param wordIndex Word to find wrap index of
+     * @return The index of the word wrap where the word is split and wraps to the next line.
+     * @throws HackDataException When word does not wrap or does not exist.
+     * @throws IndexOutOfBoundsException When index < 0 || index >= NUM_CHARS
+     */
     public int getWordWrapSplitIndex(int wordIndex) {
         if (!isWordWrapped(wordIndex)) {
             throw new HackDataException("Attempting to get wrap split index of non-word [index=" + wordIndex + "]");
         }
+        if (wordIndex < 0 || wordIndex >= length()) {
+            throw new IndexOutOfBoundsException("Index out of bounds: " + wordIndex);
+        }
 
-        return wordIndex - wordIndex % LINE_LENGTH + LINE_LENGTH;
+        int wordStart = getWordStart(wordIndex);
+
+        return wordStart + (LINE_LENGTH - wordStart%LINE_LENGTH);
     }
 
+    /**
+     * Retrieves a line using getLine(int, int) and space-expands it for rendering.
+     *
+     * Space expanding leaves a trailing space on the end of the string.
+     *
+     * @param row Vertical row of the line to be retrieved
+     * @param col Column that the line is in
+     * @return The space-expanded line with a trailing space.
+     */
     public String getExpandedLine(int row, int col) {
         return expandString(getLine(row, col));
     }
 
+    /**
+     * Space-expands a string so that every character in the given string has a space between the next character.
+     *
+     * A trailing space is left on the result.
+     *
+     * @param str String to be space-expanded
+     * @return A space expanded copy of the parameter with a trailing space.
+     */
     public static String expandString(String str) {
         String work = "";
 
@@ -453,42 +485,71 @@ public class HackData {
         return work;
     }
 
+    /**
+     *
+     * @return The password solution to this hack
+     */
     public String getSolution() {
         return solution;
     }
 
+    /*
+    THIS METHOD IS CALLED IN THE CONSTRUCTOR AND SHOULD NEVER BE CALLED TWICE
+
+    Generates all of the contents for this hack based on the instance variable 'difficulty'
+     */
     private void generateAllText() {
         randomizeJunkAllText();
 
         fillWordsInAllText();
     }
 
+    /*
+    Inserts words into allText based on the instance variable 'difficulty'
+
+    Sets the solution
+     */
     private void fillWordsInAllText() {
+        //Get wordset for difficulty
         ArrayList<String> words = getWordSet(difficulty);
+        //Get number of words for the hack for difficulty
         int wordCount = getWordCount(difficulty);
+
         Random rand = new Random();
 
+        //Loop until enough words have been inserted
         while (wordCount > 0) {
+            //Get random word
             String word = words.get(rand.nextInt(words.size()));
 
+            //Does allText already contain it?
             if (!allText.contains(word)) {
+                //Put the word into allText
                 putWordInAllText(word);
 
+                //Add it to the used words list
                 usedWords.add(word);
 
+                //Decrement counter
                 wordCount--;
             }
         }
 
+        //Set random solution from used words list
         solution = usedWords.get(rand.nextInt(usedWords.size()));
     }
 
+    /*
+    Put a word into allText at a random index that doesn't overlap or connect with any other words
+     */
     private void putWordInAllText(String word) {
         Random rand = new Random();
 
         while (true) {
+            //New random pose to try
             int pos = rand.nextInt(NUM_CHARS - word.length());
 
+            //If it fits, put it in and break
             if (!overlapsOtherWord(word, pos)) {
                 insertWord(word, pos);
                 break;
@@ -496,10 +557,16 @@ public class HackData {
         }
     }
 
+    /*
+    Directly insert a word into the given location. No checks are made to ensure it's safe.
+     */
     private void insertWord(String word, int pos) {
         allText = allText.substring(0, pos) + word + allText.substring(pos + word.length());
     }
 
+    /*
+    Tests whether a word will overlap other words or be directly adjacent to them for the given index. No index checks are made.
+     */
     private boolean overlapsOtherWord(String word, int pos) {
         String inQuestion = allText.substring(pos, pos + word.length());
 
@@ -515,6 +582,9 @@ public class HackData {
 
     }
 
+    /*
+    Retrieves a wordset for a given difficulty
+     */
     private ArrayList<String> getWordSet(int difficulty) {
         switch (difficulty) {
             case DIFF_VERY_EASY:
@@ -532,6 +602,11 @@ public class HackData {
         }
     }
 
+    /*
+    Determines the number of words to be present in a hack with a given difficulty.
+
+    -1 is returned if an invalid difficulty is given.
+     */
     private int getWordCount(int difficulty) {
         switch (difficulty) {
             case DIFF_VERY_EASY:
@@ -549,6 +624,11 @@ public class HackData {
         }
     }
 
+    /*
+    Constructs allText to be of proper length using random, non-letter characters.
+
+    This includes bracket characters
+     */
     private void randomizeJunkAllText() {
         allText = "";
         for (int i = 0; i < NUM_CHARS; i++) {
@@ -556,6 +636,9 @@ public class HackData {
         }
     }
 
+    /*
+    Load wordsets from file
+     */
     private void loadWordsFromFile(String path) {
         try {
             Scanner scan = new Scanner(new File(path));
@@ -580,6 +663,7 @@ public class HackData {
             scan.close();
         } catch (IOException ex) {
             Gdx.app.error("File Loading", "(" + TerminalMain.getRunTime() + ") Failed to load words from \"" + path + "\"");
+            ex.printStackTrace();
         }
     }
 
