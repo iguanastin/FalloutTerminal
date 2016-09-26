@@ -13,6 +13,7 @@ import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import fot.terminal.hack.HackData;
 import fot.terminal.hack.HackScreen;
+import fot.terminal.hack.HackScreenListener;
 import gui.Gui;
 
 import java.math.BigDecimal;
@@ -150,6 +151,22 @@ public class TerminalMain extends ApplicationAdapter {
         HackScreen screen = new HackScreen(this, HackData.DIFF_EASY);
 //        screen.addOutput("test output 1");
 //        screen.addOutput("long line test here, should wrap at least once successfully");
+        screen.setListener(new HackScreenListener() {
+            @Override
+            public void hackSuccess() {
+
+            }
+
+            @Override
+            public void hackFailure() {
+
+            }
+
+            @Override
+            public void hackCancel() {
+                Gdx.app.exit();
+            }
+        });
         openScreen(screen);
         //TODO: REMOVE ------------
 

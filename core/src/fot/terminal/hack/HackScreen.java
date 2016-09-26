@@ -48,7 +48,7 @@ public class HackScreen extends TerminalScreen {
         generateHexValues();
 
         data = new HackData(difficulty);
-        output = new String[HackData.LINES_PER_COL - 1];
+        output = new String[HackData.LINES_PER_COL - 2];
 
         setIndex(0);
     }
@@ -93,16 +93,14 @@ public class HackScreen extends TerminalScreen {
                 } else {
                     excess = work.charAt(work.length() - 1) + excess;
                     work = work.substring(0, work.length() - 1);
+
+                    System.out.println(work + " - " + excess);
                 }
             }
 
             addOutput(work);
             addOutput(excess);
         }
-    }
-
-    public String[] getOutput() {
-        return output;
     }
 
     private void shiftConsoleUp() {
@@ -254,7 +252,7 @@ public class HackScreen extends TerminalScreen {
             if (selected == null || selected.isEmpty()) {
                 selected = ">";
             }
-            font.draw(batch, ">" + selected, EDGE_GAP + HEX_GAP * 2 + 20, Gdx.graphics.getHeight() - EDGE_GAP - font.getLineHeight() * (output.length + 5) - Gui.stutter);
+            font.draw(batch, ">" + selected, EDGE_GAP + HEX_GAP * 2 + 20, Gdx.graphics.getHeight() - EDGE_GAP - font.getLineHeight() * (output.length + 6) - Gui.stutter);
         }
     }
 
@@ -356,7 +354,25 @@ public class HackScreen extends TerminalScreen {
 
             //TODO: Implement allowance replenishment
         } else if (data.isWord(index)) {
-            //TODO: Implement solution checking
+            if (selected.equals(data.getSolution())) {
+                //TODO: Implement success animation
+
+                addOutput(selected);
+                addOutput("Exact match! Please wait while system is accessed.");
+
+                TerminalAudio.playPassGood();
+            } else {
+                if (data.getAttempts() > 0) {
+                    data.useAttempt();
+
+                    addOutput(selected);
+                    addOutput("Entry Denied, " + HackData.getSimilarity(selected, data.getSolution()) + "/" + data.getSolution().length() + " correct.");
+
+                    TerminalAudio.playPassBad();
+                } else {
+                    //TODO: Implement failure animation
+                }
+            }
         } else { //Is normal char
             TerminalAudio.playPassBad();
 

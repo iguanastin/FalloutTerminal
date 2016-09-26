@@ -62,7 +62,7 @@ public class HackData {
     private static final char[] randomChars = {'{', '}', '(', ')', '[', ']', '<', '>', '?', '-', '_', '\'', ';', '^', '*', '\\', '/', '!', '+', '#', '$', '%', '.', '|', ':', '"', '=', ','};
     //Characters that can be bracket group beginners
     private static final String bracketStarts = "([{<";
-    //Corresponding bracket group enders. Each type of bracket end must match the same index as its type in bracketStarts
+    //Corresponding bracket group closers. Each type of bracket end must match the same index as its type in bracketStarts
     private static final String bracketEnds = ")]}>";
 
     //Wordsets ---------------------------------------------------------------------------------------------------------
@@ -99,6 +99,7 @@ public class HackData {
      * Constructs a HackData object and generates the contents from the given difficulty enum
      *
      * @param difficulty Difficulty to construct data with
+     * @throws HackDataException When difficulty is not a valid enum
      */
     public HackData(int difficulty) {
         if (difficulty != DIFF_VERY_EASY && difficulty != DIFF_EASY && difficulty != DIFF_AVERAGE && difficulty != DIFF_HARD && difficulty != DIFF_VERY_HARD) {
@@ -107,11 +108,35 @@ public class HackData {
 
         this.difficulty = difficulty;
 
+        //If wordsets haven't been loaded, load them
         if (easyWords.isEmpty()) {
             loadWordsFromFile("words.txt");
         }
 
         generateAllText();
+    }
+
+    /**
+     * Finds the number of characters that are shared (position dependent) between both strings.
+     *
+     * @param str1 String 1 to compare
+     * @param str2 String 2 to compare
+     * @return Number of same characters shared between strings. 0 - str length
+     */
+    public static int getSimilarity(String str1, String str2) {
+        if (str1.length() != str2.length()) {
+            throw new HackDataException("Cannot get similarity of non-equal length strings: " + str1.length() + ", " + str2.length());
+        }
+
+        int similarity = 0;
+
+        for (int i = 0; i < str1.length(); i++) {
+            if (str1.charAt(i) == str2.charAt(i)) {
+                similarity++;
+            }
+        }
+
+        return similarity;
     }
 
     /**
@@ -124,16 +149,21 @@ public class HackData {
             return;
         }
 
+        //Find random word to remove
         String toRemove = null;
         while (toRemove == null || solution.equals(toRemove)) toRemove = usedWords.get((int)(Math.random()*usedWords.size()));
+
+        //Create replacement string of toRemove.length() dots
         String replacement = "";
         for (int i = 0; i < toRemove.length(); i++) {
             replacement += '.';
         }
 
+        //Clean up used word list and used bracket group list
         usedWords.remove(toRemove);
         usedBracketGroups.add(bracketGroupIndex);
 
+        //Replace word with replacement dots
         allText = allText.replace(toRemove, replacement);
     }
 
