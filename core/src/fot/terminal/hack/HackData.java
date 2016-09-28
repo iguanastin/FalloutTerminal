@@ -10,7 +10,7 @@ import java.util.Random;
 import java.util.Scanner;
 
 /**
- *
+ * This class holds all information and data of a hack.
  *
  * @author austinbt
  */
@@ -523,10 +523,10 @@ public class HackData {
         return solution;
     }
 
-    /*
-    THIS METHOD IS CALLED IN THE CONSTRUCTOR AND SHOULD NEVER BE CALLED TWICE
-
-    Generates all of the contents for this hack based on the instance variable 'difficulty'
+    /**
+     * THIS METHOD IS CALLED IN THE CONSTRUCTOR AND SHOULD NEVER BE CALLED TWICE
+     *
+     * Generates all of the contents for this hack based on the instance variable 'difficulty'
      */
     private void generateAllText() {
         randomizeJunkAllText();
@@ -534,10 +534,10 @@ public class HackData {
         fillWordsInAllText();
     }
 
-    /*
-    Inserts words into allText based on the instance variable 'difficulty'
-
-    Sets the solution
+    /**
+     * Inserts words into allText based on the instance variable 'difficulty'
+     *
+     * Sets the solution
      */
     private void fillWordsInAllText() {
         //Get wordset for difficulty
@@ -569,8 +569,10 @@ public class HackData {
         solution = usedWords.get(rand.nextInt(usedWords.size()));
     }
 
-    /*
-    Put a word into allText at a random index that doesn't overlap or connect with any other words
+    /**
+     * Put a word into allText at a random index that doesn't overlap or connect with any other words
+     *
+     * @param word Word to insert
      */
     private void putWordInAllText(String word) {
         Random rand = new Random();
@@ -587,15 +589,22 @@ public class HackData {
         }
     }
 
-    /*
-    Directly insert a word into the given location. No checks are made to ensure it's safe.
+    /**
+     * Directly insert a word into the given location. No checks are made to ensure it's safe.
+     *
+     * @param word Word to insert
+     * @param pos Index to insert word at
      */
     private void insertWord(String word, int pos) {
         allText = allText.substring(0, pos) + word + allText.substring(pos + word.length());
     }
 
-    /*
-    Tests whether a word will overlap other words or be directly adjacent to them for the given index. No index checks are made.
+    /**
+     * Tests whether a word will overlap other words or be directly adjacent to them for the given index. No index checks are made.
+     *
+     * @param word Word that is checked to see if it fits.
+     * @param pos Index to test if insertable
+     * @return True if this word can be safely placed in the given index
      */
     private boolean overlapsOtherWord(String word, int pos) {
         String inQuestion = allText.substring(pos, pos + word.length());
@@ -612,8 +621,11 @@ public class HackData {
 
     }
 
-    /*
-    Retrieves a wordset for a given difficulty
+    /**
+     * Retrieves a wordset for a given difficulty
+     *
+     * @param difficulty Difficulty of wordset to get.
+     * @return Wordset for the given difficulty.
      */
     private ArrayList<String> getWordSet(int difficulty) {
         switch (difficulty) {
@@ -632,10 +644,11 @@ public class HackData {
         }
     }
 
-    /*
-    Determines the number of words to be present in a hack with a given difficulty.
-
-    -1 is returned if an invalid difficulty is given.
+    /**
+     * Determines the number of words to be present in a hack with a given difficulty.
+     *
+     * @param difficulty Difficulty of this hack
+     * @return Number of words to add to the contents of this data for the given difficulty. -1 is returned if an invalid difficulty is given.
      */
     private int getWordCount(int difficulty) {
         switch (difficulty) {
@@ -654,10 +667,10 @@ public class HackData {
         }
     }
 
-    /*
-    Constructs allText to be of proper length using random, non-letter characters.
-
-    This includes bracket characters
+    /**
+     * Constructs allText to be of proper length using random, non-letter characters.
+     *
+     * This includes bracket characters
      */
     private void randomizeJunkAllText() {
         allText = "";
@@ -666,8 +679,10 @@ public class HackData {
         }
     }
 
-    /*
-    Load wordsets from file
+    /**
+     * Load wordsets from file
+     *
+     * @param path Path to text file containing all possible words.
      */
     private void loadWordsFromFile(String path) {
         try {

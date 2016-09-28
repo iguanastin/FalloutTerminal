@@ -17,28 +17,51 @@ import gui.Gui;
  */
 public class HackScreen extends TerminalScreen {
 
+    //Distance of anything drawn to edge of screen
     private static final int EDGE_GAP = 100;
+    //Distance between each hex/data column
     private static final int HEX_GAP = 500;
+    //Number of chars in each line of output
     private static final int OUTPUT_WIDTH = 24;
 
+    //Counters for animating
     private CountAction firstLineCounter, secondLineCounter, hexLineCounter;
 
+    //Drawn line strings -----------------------------------------------------------------------------------------------
     private final String firstLine = "ROBCO INDUSTRIES (TM) TERMLINK PROTOCOL";
     private final String secondLine = "ENTER PASSWORD NOW";
     private final String attemptsLine = " ATTEMPT(S) LEFT: ";
+    //------------------------------------------------------------------------------------------------------------------
 
+    //Hex strings to be drawn
     private String[] hexes = new String[HackData.LINES_PER_COL * 2];
 
+    //Animation booleans
     private boolean drawFirstLine = true, drawSecondLine, drawAttemptsLine, drawContents, drawOutput, drawHexLines;
+
+    //Can user input be processed
     private boolean allowInput;
 
+    //Data of this hack
     private HackData data;
+    //Listener to fire on success, failure, or cancel
     private HackScreenListener listener;
+    //Output array
     private String[] output;
+    //Currently selected string
     private String selected = "";
+    //Current index
     private int index = 0;
 
 
+    /**
+     * Constructs an instance of this class for a given Terminal.
+     * <p>
+     * Generates a dataset from the given difficulty enum.
+     *
+     * @param terminal   Terminal this screen will be running in.
+     * @param difficulty Difficulty enum to generate data from.
+     */
     public HackScreen(TerminalMain terminal, int difficulty) {
         super(terminal);
 
@@ -53,9 +76,15 @@ public class HackScreen extends TerminalScreen {
         setIndex(0);
     }
 
+    /**
+     * Sets the current index, updates the current selection, and plays audio.
+     *
+     * @param i New index
+     * @throws IndexOutOfBoundsException When i<0 || i>=data.length()
+     */
     public void setIndex(int i) {
         if (i < 0 || i > data.length()) {
-            throw new ArrayIndexOutOfBoundsException("Index " + i + " out of bounds");
+            throw new IndexOutOfBoundsException("Index " + i + " out of bounds");
         }
 
         index = i;
@@ -68,6 +97,12 @@ public class HackScreen extends TerminalScreen {
         }
     }
 
+    /**
+     * Returns what would be selected at the given index i
+     *
+     * @param i Selection index
+     * @return The word at the index if it exists, otherwise, the bracket group at the index if it exists, otherwise the char at the index.
+     */
     public String getSelection(int i) {
         if (data.isBracketGroup(i)) {
             return data.getBracketGroup(i);
@@ -78,9 +113,14 @@ public class HackScreen extends TerminalScreen {
         }
     }
 
+    /**
+     * Adds a message to the output array.
+     *
+     * @param msg Message to add. Will be split as needed. Each line will start with a '>' character.
+     */
     public void addOutput(String msg) {
         if (msg.length() < OUTPUT_WIDTH - 1) {
-            shiftConsoleUp();
+            shiftOutputUp();
             output[0] = '>' + msg;
         } else {
             String work = msg;
@@ -103,16 +143,32 @@ public class HackScreen extends TerminalScreen {
         }
     }
 
-    private void shiftConsoleUp() {
+    /**
+     * Shifts all output in the array up one index
+     */
+    private void shiftOutputUp() {
         for (int i = output.length - 1; i > 0; i--) {
             output[i] = output[i - 1];
         }
     }
 
+    /**
+     * Sets the listener listening to this instance
+     *
+     * @see HackScreenListener
+     * @see HackScreenListener#hackCancel()
+     * @see HackScreenListener#hackFailure()
+     * @see HackScreenListener#hackSuccess()
+     *
+     * @param listener Listener listening to events from this instance
+     */
     public void setListener(HackScreenListener listener) {
         this.listener = listener;
     }
 
+    /**
+     * Generates hex strings and inserts them into the hexes array
+     */
     private void generateHexValues() {
         int hexVal = 63088;
         for (int i = 0; i < hexes.length; i++) {
@@ -122,6 +178,9 @@ public class HackScreen extends TerminalScreen {
         }
     }
 
+    /**
+     * Generates animation actions and starts animation
+     */
     @Override
     public void opened() {
         TerminalAudio.playCharScroll();
@@ -174,6 +233,11 @@ public class HackScreen extends TerminalScreen {
          */
     }
 
+    /**
+     * Draws this hackscreen
+     *
+     * @param batch Batch to draw to
+     */
     @Override
     public void draw(Batch batch) {
         Gui.begin(batch);
@@ -236,6 +300,7 @@ public class HackScreen extends TerminalScreen {
             drawContents(batch, font);
         }
 
+        //Draw output
         if (drawOutput) {
             Gui.begin(batch);
 
@@ -382,18 +447,27 @@ public class HackScreen extends TerminalScreen {
         TerminalAudio.playButtonClick();
     }
 
+    /**
+     * Moves the current index down one line
+     */
     private void down() {
         if (index < data.length() - HackData.LINE_LENGTH) {
             setIndex(index + HackData.LINE_LENGTH);
         }
     }
 
+    /**
+     * Moves the current index up one line
+     */
     private void up() {
         if (index >= HackData.LINE_LENGTH) {
             setIndex(index - HackData.LINE_LENGTH);
         }
     }
 
+    /**
+     * Moves the current index right
+     */
     private void right() {
         if (data.isWord(index)) {
             if (data.isWordWrapped(index) && index < HackData.LINE_LENGTH *HackData.LINES_PER_COL) { //Word is wrapped and index is in first column
@@ -414,6 +488,9 @@ public class HackScreen extends TerminalScreen {
         }
     }
 
+    /**
+     * Moves the current index left
+     */
     private void left() {
         if (data.isWord(index)) {
             if (data.isWordWrapped(index) && index >= HackData.LINE_LENGTH *HackData.LINES_PER_COL) { //Word is wrapped and index is in second column
